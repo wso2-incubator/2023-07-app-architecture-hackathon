@@ -1,0 +1,328 @@
+openapi: 3.0.1
+info:
+  title: Visit
+  version: 0.1.0
+servers:
+- url: "{server}:{port}/visit"
+  variables:
+    server:
+      default: http://localhost
+    port:
+      default: "9090"
+paths:
+  /scheduledVisits:
+    get:
+      operationId: getScheduledvisits
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduledVisit'
+    post:
+      operationId: postScheduledvisits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewScheduledVisit'
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledVisit'
+        "403":
+          description: Forbidden
+  /scheduledVisits/{visitId}:
+    get:
+      operationId: getScheduledvisitsVisitid
+      parameters:
+      - name: visitId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledVisit'
+        "403":
+          description: Forbidden
+    put:
+      operationId: putScheduledvisitsVisitid
+      parameters:
+      - name: visitId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduledVisit'
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledVisit'
+        "403":
+          description: Forbidden
+  /scheduledVisits/search:
+    get:
+      operationId: getScheduledvisitsSearch
+      parameters:
+      - name: searchField
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/SearchField'
+      - name: value
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduledVisit'
+  /actualVisits:
+    get:
+      operationId: getActualvisits
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActualVisit'
+    put:
+      operationId: putActualvisits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualVisit'
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualVisit'
+    post:
+      operationId: postActualvisits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewActualVisit'
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualVisit'
+  /actualVisits/{visitId}:
+    get:
+      operationId: getActualvisitsVisitid
+      parameters:
+      - name: visitId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualVisit'
+        "403":
+          description: Forbidden
+  /actualVisits/search:
+    get:
+      operationId: getActualvisitsSearch
+      parameters:
+      - name: searchField
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/SearchField'
+      - name: value
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActualVisit'
+components:
+  schemas:
+    SearchField:
+      type: string
+      enum: [HOUSE_NO, VISITOR_NAME, VISITOR_NIC, VISITOR_PHONE_NO, VEHICLE_NUMBER]
+    ActualVisit:
+      allOf:
+      - $ref: '#/components/schemas/NewActualVisit'
+      - required:
+        - visitId
+        type: object
+        properties:
+          visitId:
+            type: integer
+            format: int64
+    ScheduledVisit:
+      allOf:
+      - $ref: '#/components/schemas/NewScheduledVisit'
+      - required:
+        - visitId
+        type: object
+        properties:
+          visitId:
+            type: integer
+            format: int64
+    NewScheduledVisit:
+      required:
+      - comment
+      - houseNo
+      - isApproved
+      - visitDate
+      - visitorName
+      type: object
+      properties:
+        houseNo:
+          type: string
+        visitorName:
+          type: string
+        visitorNIC:
+          type: string
+        visitorPhoneNo:
+          type: string
+        vehicleNumber:
+          type: string
+        visitDate:
+          type: string
+        isApproved:
+          type: boolean
+        comment:
+          type: string
+    NewActualVisit:
+      required:
+      - comment
+      - houseNo
+      - inTime
+      - isApproved
+      - outTime
+      - visitDate
+      - visitorName
+      type: object
+      properties:
+        inTime:
+          type: string
+        outTime:
+          type: string
+        houseNo:
+          type: string
+        visitorName:
+          type: string
+        visitorNIC:
+          type: string
+        visitorPhoneNo:
+          type: string
+        vehicleNumber:
+          type: string
+        visitDate:
+          type: string
+        isApproved:
+          type: boolean
+        comment:
+          type: string

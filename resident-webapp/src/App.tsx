@@ -19,8 +19,8 @@ const authConfig = {
         "profile",
         "houseno"
     ],
-    "signInRedirectURL": "https://" + window.location.host + "/login",
-    "signOutRedirectURL": "https://" + window.location.host + "/login",
+    "signInRedirectURL": "https://" + window.location.host,
+    "signOutRedirectURL": "https://" + window.location.host,
 }
 
 function App() {

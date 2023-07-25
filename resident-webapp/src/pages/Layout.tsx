@@ -23,6 +23,7 @@ import { Outlet, redirect, Navigate } from "react-router-dom";
 import Chart from '../components/dashboard/Chart';
 import Deposits from '../components/dashboard/Deposits';
 import UserMenu from '../components/UserMenu';
+import { CircularProgress } from '@mui/material';
 
 function Copyright(props: any) {
     return (
@@ -94,9 +95,11 @@ const Layout = () => {
     const { state, signIn, signOut } = useAuthContext();
 
     if (state.isLoading) {
-        if (!state.isAuthenticated) {
-            return <Navigate to="/login" />;
-        }
+        return (
+            <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress />
+            </Container>
+        );
     }
 
     const toggleDrawer = () => {

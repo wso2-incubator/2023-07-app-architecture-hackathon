@@ -10,8 +10,8 @@ import NoPage from "./pages/NoPage";
 import Login from './pages/Login';
 
 const authConfig = {
-    "baseUrl": "https://api.asgardeo.io/t/",
-    "clientID": "",
+    "baseUrl": "https://api.asgardeo.io/t/architecturemindmeld",
+    "clientID": "kMMz9FOPufwyYOCw6GKWltS8XuMa",
     "scope": [
         "openid",
         "profile"

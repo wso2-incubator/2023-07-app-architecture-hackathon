@@ -7,8 +7,14 @@ import SecurityStaffWelcome from './SecurityStaffWelcome';
 import { Table, Header, HeaderCell, HeaderRow, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { getTheme } from '@table-library/react-table-library/baseline';
+import VisitScheduler from './VisitScheduler';
+
 
 function Schedules() {
+
+  const scheduleVisit = () => {
+    console.log("Visit scheduled!"); // You can add your scheduling logic here
+  };
 
   // const [items, setitems] = useState([]);
   // const [searchTerm, setSearchTerm] = useState('');
@@ -63,11 +69,12 @@ function Schedules() {
   }, []);
 
   const data = {
-    nodes: searchResults.filter((item) =>
-      item.visitorName.toLowerCase().includes(search.toLowerCase()) ||
-      item.visitorNIC.includes(search) ||
-      item.visitorPhoneNo.includes(search) ||
-      item.vehicleNumber.includes(search)
+    nodes: searchResults.filter((item) =>      
+      (item.visitorName && item.visitorName.toLowerCase().includes(search.toLowerCase())) ||
+      (item.visitorNIC && item.visitorNIC.includes(search)) ||
+      (item.visitorPhoneNo && item.visitorPhoneNo.includes(search)) ||
+      (item.vehicleNumber && item.vehicleNumber.includes(search)) ||
+      (item.houseNo && item.houseNo.includes(search)) 
     ),
   };
 
@@ -77,6 +84,7 @@ function Schedules() {
         <div class="ui input">
             <input type="text" placeholder="Search..." onChange={handleSearch} />
         </div>
+        <VisitScheduler onScheduleVisit={scheduleVisit} />
 
              <Table data={data} theme={theme}>
          {(tableList) => (

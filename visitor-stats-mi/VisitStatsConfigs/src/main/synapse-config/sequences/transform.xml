@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="transform" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <payloadFactory media-type="json" template-type="freemarker">
+        <format><![CDATA[{"visitors":[
+<#list payload as visitor>
+[	"${visitor.visitorName}","${visitor.visitDate}","${visitor.inTime}","${visitor.outTime}","${visitor.houseNo}","${visitor.visitId}","${visitor.visitorPhoneNo}","${visitor.vehicleNumber}","${visitor.visitorNIC}","${visitor.comment}" ],
+
+</#list>
+]}]]></format>
+        <args/>
+    </payloadFactory>
+    <property expression="json-eval($.visitors)" name="values" scope="default" type="STRING"/>
+</sequence>

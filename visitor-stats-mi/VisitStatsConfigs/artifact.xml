@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="PollVisitsSequence" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/PollVisitsSequence.xml</file>
+    </artifact>
+    <artifact name="VisitorStats" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/VisitorStats.xml</file>
+    </artifact>
+    <artifact name="VisitorStats_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/VisitorStats_swagger.yaml</file>
+    </artifact>
+    <artifact name="VisitorStats_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/VisitorStats_metadata.yaml</file>
+    </artifact>
+    <artifact name="clearSheet" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/clearSheet.xml</file>
+    </artifact>
+    <artifact name="pushData" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/pushData.xml</file>
+    </artifact>
+    <artifact name="transform" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/transform.xml</file>
+    </artifact>
+    <artifact name="VisitorServiceEP" groupId="com.example.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/VisitorServiceEP.xml</file>
+    </artifact>
+    <artifact name="pullStats" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/pullStats.xml</file>
+    </artifact>
+    <artifact name="SpreadSheetConfig" groupId="com.example.local-entry" version="1.0.0" type="synapse/local-entry" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/local-entries/SpreadSheetConfig.xml</file>
+    </artifact>
+</artifacts>

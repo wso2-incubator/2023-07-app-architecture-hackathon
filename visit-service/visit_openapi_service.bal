@@ -23,6 +23,23 @@ type ScheduledVisitEntity record {|
     |} visitData;
 |};
 
+type ActualVisitEntity record {|
+    int id;
+    record {|
+        int visitId;
+        string houseNo;
+        string visitorName;
+        string? visitorNIC;
+        string? visitorPhoneNo;
+        string? vehicleNumber;
+        string visitDate;
+        boolean isApproved;
+        string comment;
+    |} visitData;
+    string inTime;
+    string outTime;
+|};
+
 service /visit on httpListener {
     private final db:Client db;
 
@@ -149,17 +166,43 @@ service /visit on httpListener {
     }
 
     resource function get actualVisits() returns InternalServerErrorString|ActualVisit[] {
+        stream<ActualVisitEntity, error?> actualVisitStream = self.db->/actualvisits();
+        ActualVisit[]|error visits =
+                from var {visitData, inTime, outTime} in actualVisitStream
+        select {
+
+            visitId: visitData.visitId,
+            houseNo: visitData.houseNo,
+            visitorName: visitData.visitorName,
+            visitorNIC: visitData.visitorNIC,
+            visitorPhoneNo: visitData.visitorPhoneNo,
+            vehicleNumber: visitData.vehicleNumber,
+            visitDate: visitData.visitDate,
+            isApproved: visitData.isApproved,
+            comment: visitData.comment,
+            inTime,
+            outTime
+        };
+
+        if visits is error {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        } else {
+            return visits;
+        }
     }
 
     resource function put actualVisits(@http:Payload ActualVisit payload) returns InternalServerErrorString|ActualVisit {
     }
 
     resource function post actualVisits(@http:Payload NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
+
     }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {
+
     }
 
     resource function get actualVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ActualVisit[] {
+
     }
 }

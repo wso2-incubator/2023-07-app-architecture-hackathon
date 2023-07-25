@@ -8,7 +8,7 @@ import ballerina/time;
 
 listener http:Listener httpListener = new (9090);
 
-// Type drived query
+// Type driven query
 type ScheduledVisitEntity record {|
     int id;
     record {|
@@ -22,6 +22,23 @@ type ScheduledVisitEntity record {|
         boolean isApproved;
         string comment;
     |} visitData;
+|};
+
+type ActualVisitEntity record {|
+    int id;
+    record {|
+        int visitId;
+        string houseNo;
+        string visitorName;
+        string? visitorNIC;
+        string? visitorPhoneNo;
+        string? vehicleNumber;
+        string visitDate;
+        boolean isApproved;
+        string comment;
+    |} visitData;
+    string inTime;
+    string outTime;
 |};
 
 service /visit on httpListener {
@@ -125,6 +142,24 @@ service /visit on httpListener {
     }
 
     resource function get scheduledVisits/[int visitId]() returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
+        ScheduledVisitEntity|error scheduledVisitEntity = self.db->/scheduledvisits/[visitId];
+
+        if scheduledVisitEntity is error {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        }
+
+        ScheduledVisit scheduledVisit = {
+            visitId: scheduledVisitEntity.visitData.visitId,
+            houseNo: scheduledVisitEntity.visitData.houseNo,
+            visitorName: scheduledVisitEntity.visitData.visitorName,
+            visitorNIC: scheduledVisitEntity.visitData.visitorNIC,
+            visitorPhoneNo: scheduledVisitEntity.visitData.visitorPhoneNo,
+            vehicleNumber: scheduledVisitEntity.visitData.vehicleNumber,
+            visitDate: scheduledVisitEntity.visitData.visitDate,
+            isApproved: scheduledVisitEntity.visitData.isApproved,
+            comment: scheduledVisitEntity.visitData.comment
+        };
+        return scheduledVisit;
     }
 
     resource function put scheduledVisits/[int visitId](ScheduledVisit payload) returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
@@ -159,19 +194,63 @@ service /visit on httpListener {
     }
 
     resource function get scheduledVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ScheduledVisit[] {
+        stream<ScheduledVisitEntity, error?> scheduledVisitStream = self.db->/scheduledvisits();
+        ScheduledVisit[]|error visits =
+            from var {visitData} in scheduledVisitStream
+                where visitData.houseNo == value
+                select {
+                    visitId: visitData.visitId,
+                    houseNo: visitData.houseNo,
+                    visitorName: visitData.visitorName,
+                    visitorNIC: visitData.visitorNIC,
+                    visitorPhoneNo: visitData.visitorPhoneNo,
+                    vehicleNumber: visitData.vehicleNumber,
+                    visitDate: visitData.visitDate,
+                    isApproved: visitData.isApproved,
+                    comment: visitData.comment
+                };
+
+        if visits is error {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        } else {
+            return visits;
+        }
     }
 
     resource function get actualVisits() returns InternalServerErrorString|ActualVisit[] {
+        stream<ActualVisitEntity, error?> actualVisitStream = self.db->/actualvisits();
+        ActualVisit[]|error visits =
+                from var {visitData, inTime, outTime} in actualVisitStream
+        select {
+
+            visitId: visitData.visitId,
+            houseNo: visitData.houseNo,
+            visitorName: visitData.visitorName,
+            visitorNIC: visitData.visitorNIC,
+            visitorPhoneNo: visitData.visitorPhoneNo,
+            vehicleNumber: visitData.vehicleNumber,
+            visitDate: visitData.visitDate,
+            isApproved: visitData.isApproved,
+            comment: visitData.comment,
+            inTime,
+            outTime
+        };
+
+        if visits is error {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        } else {
+            return visits;
+        }
     }
 
     resource function put actualVisits(ActualVisit payload) returns InternalServerErrorString|ActualVisit {
     }
 
     resource function post actualVisits(NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
-
     }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {
+
     }
 
     resource function get actualVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ActualVisit[] {

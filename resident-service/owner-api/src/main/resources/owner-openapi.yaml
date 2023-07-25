@@ -1,0 +1,83 @@
+openapi: 3.0.1
+info:
+  title: Owner Openapi Yaml
+  version: 0.1.0
+servers:
+- url: "{server}:{port}/"
+  variables:
+    server:
+      default: http://localhost
+    port:
+      default: "9090"
+paths:
+  /owners:
+    get:
+      operationId: getOwners
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Owner'
+  /owners/search:
+    get:
+      operationId: getOwnerssSearch
+      parameters:
+      - name: searchField
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/SearchField'
+      - name: value
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Owner'
+components:
+  schemas:
+    SearchField:
+      type: string
+      enum: [HOUSE_NO, NAME, NIC, PHONE_NO, EMAIL]
+    Owner:
+      required:
+      - email
+      - houseNo
+      - name
+      - nic
+      - phoneNo
+      type: object
+      properties:
+        houseNo:
+          type: string
+        name:
+          type: string
+        nic:
+          type: string
+        phoneNo:
+          type: string
+        email:
+          type: string

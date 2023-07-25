@@ -14,6 +14,8 @@ const VisitScheduler = ({ onScheduleVisit }) => {
     vehicleNumber: '',
     visitorPhoneNo: '',
     visitDate: '',
+    inTime: '',
+    outTime: '',
     isApproved: false,
     comment: '',
   });
@@ -34,13 +36,15 @@ const VisitScheduler = ({ onScheduleVisit }) => {
 
   const handleAddItemSubmit = async () => {
     formData.visitDate = formData.visitDate + ":00.00Z";
+    formData.inTime = formData.inTime + ":00.00Z";
+    formData.outTime = formData.outTime + ":00.00Z";
     const requestConfig = {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*,http://localhost:3000"
       },
       method: "POST",
-      url: window.config.resourceServerURL + '/scheduledVisits',
+      url: window.config.resourceServerURL + '/actualVisits',
       data: formData,
       withCredentials: false
     };
@@ -91,7 +95,7 @@ const VisitScheduler = ({ onScheduleVisit }) => {
           </Button>
         }
       >
-        <Modal.Header>Schedule a New Visit</Modal.Header>
+        <Modal.Header>Enter a New Visit</Modal.Header>
         <Modal.Content>
           <Form onSubmit={handleSubmit}>
             <Form.Field>
@@ -155,6 +159,26 @@ const VisitScheduler = ({ onScheduleVisit }) => {
                 type="datetime-local"
                 name="visitDate"
                 value={formData.visitDate}
+                onChange={handleChange}
+                required
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>In Time</label>
+              <input
+                type="datetime-local"
+                name="inTime"
+                value={formData.inTime}
+                onChange={handleChange}
+                required
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Out Time</label>
+              <input
+                type="datetime-local"
+                name="outTime"
+                value={formData.outTime}
                 onChange={handleChange}
                 required
               />

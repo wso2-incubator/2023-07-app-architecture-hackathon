@@ -43,3 +43,4 @@ public type NewActualVisit record {
     boolean isApproved;
     string comment;
 };
+

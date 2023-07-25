@@ -93,8 +93,10 @@ const Layout = () => {
     const [open, setOpen] = React.useState(true);
     const { state, signIn, signOut } = useAuthContext();
 
-    if (!state.isAuthenticated) {
-        return <Navigate to="/login" />;
+    if (state.isLoading) {
+        if (!state.isAuthenticated) {
+            return <Navigate to="/login" />;
+        }
     }
 
     const toggleDrawer = () => {

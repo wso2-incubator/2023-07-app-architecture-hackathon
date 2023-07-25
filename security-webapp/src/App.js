@@ -93,7 +93,6 @@ const App = () => {
             </Routes>
             <Schedules/>
           </div>
-          {/* <Footer /> */}
         </BrowserRouter>
       </div>
     </>

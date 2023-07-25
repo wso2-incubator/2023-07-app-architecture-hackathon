@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Container, Input} from 'semantic-ui-react';
 import { useAuthContext } from "@asgardeo/auth-react";
 // import UnderConstructionMessage from './UnderConstructionMessage';
+import UnderConstructionMessage from './UnderConstructionMessage';
+import SecurityStaffWelcome from './SecurityStaffWelcome';
 import { Table, Header, HeaderCell, HeaderRow, Body, Row, Cell } from '@table-library/react-table-library/table';
 
 function Schedules() {
@@ -29,6 +31,8 @@ function Schedules() {
     attachToken: isAttachToken,
     withCredentials: isWithCredentials
   };
+
+  
 
   useEffect(() => {
     // call API
@@ -61,48 +65,60 @@ function Schedules() {
     ),
   };
 
+  if(state.isAuthenticated) {
+    return (
+      <Container>
+                 {/* <label htmlFor="search">
+         Search by Task:
+         <input id="search" type="text" onChange={handleSearch} />
+       </label> */}
+       <div class="ui input">
+          <input type="text" placeholder="Search..." />
+      </div>
+
+             <Table data={data}>
+         {(tableList) => (
+         <>
+           <Header>
+             <HeaderRow>
+               <HeaderCell>House #</HeaderCell>
+               <HeaderCell>Visitor Name</HeaderCell>
+               <HeaderCell>NIC</HeaderCell>
+               <HeaderCell>Phone #</HeaderCell>
+               <HeaderCell>Vehicle #</HeaderCell>
+               <HeaderCell>Visit Date</HeaderCell>
+               <HeaderCell>Approved</HeaderCell>
+               <HeaderCell>Comment</HeaderCell>
+               <HeaderCell>Visit Id</HeaderCell>
+             </HeaderRow>
+           </Header>
+           <Body>
+             {tableList.map((item) => (
+               <Row key={item.houseNo} item={item}>
+                 <Cell>{item.houseNo}</Cell>
+                 <Cell>{item.visitorName}</Cell>
+                 <Cell>{item.visitorNIC}</Cell>
+                 <Cell>{item.visitorPhoneNo}</Cell>
+                 <Cell>{item.vehicleNumber}</Cell>
+                 <Cell>{item.visitDate}</Cell>
+                 <Cell>{item.isApproved}</Cell>
+                 <Cell>{item.comment}</Cell>
+                 <Cell>{item.visitId}</Cell>
+               </Row>
+             ))}
+           </Body>
+         </>
+         )}
+     </Table>
+      </Container>
+    );
+  } else {
   return (
     <Container>
-      <label htmlFor="search">
-        Search by Task:
-        <input id="search" type="text" onChange={handleSearch} />
-      </label>
-      <Table data={data}>
-        {(tableList) => (
-        <>
-          <Header>
-            <HeaderRow>
-              <HeaderCell>House #</HeaderCell>
-              <HeaderCell>Visitor Name</HeaderCell>
-              <HeaderCell>NIC</HeaderCell>
-              <HeaderCell>Phone #</HeaderCell>
-              <HeaderCell>Vehicle #</HeaderCell>
-              <HeaderCell>Visit Date</HeaderCell>
-              <HeaderCell>Approved</HeaderCell>
-              <HeaderCell>Comment</HeaderCell>
-              <HeaderCell>Visit Id</HeaderCell>
-            </HeaderRow>
-          </Header>
-          <Body>
-            {tableList.map((item) => (
-              <Row key={item.houseNo} item={item}>
-                <Cell>{item.houseNo}</Cell>
-                <Cell>{item.visitorName}</Cell>
-                <Cell>{item.visitorNIC}</Cell>
-                <Cell>{item.visitorPhoneNo}</Cell>
-                <Cell>{item.vehicleNumber}</Cell>
-                <Cell>{item.visitDate}</Cell>
-                <Cell>{item.isApproved}</Cell>
-                <Cell>{item.comment}</Cell>
-                <Cell>{item.visitId}</Cell>
-              </Row>
-            ))}
-          </Body>
-        </>
-        )}
-    </Table>
+         <SecurityStaffWelcome/>
     </Container>
   );
+  }
 }
 
 export default Schedules;

@@ -43,9 +43,6 @@ public class ResidentsApiController implements ResidentsApi {
     private final HttpServletRequest request;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private ResidentRepo residentRepo;
 
 
@@ -59,31 +56,6 @@ public class ResidentsApiController implements ResidentsApi {
             produces = { "application/json", "text/plain" },
             method = RequestMethod.GET)
     public ResponseEntity<List<Resident>> getResidents() throws IOException {
-
-//        String sql = "SELECT * FROM Residents";
-//        jdbcTemplate.query(sql);
-
-//
-//        List<Resident> residents = new ArrayList<>();
-//        Resident resident = new Resident();
-//        resident.setEmail("s");
-//        resident.setName("a");
-//        resident.setNic("1221");
-//        residents.add(resident);
-////        return new ResponseEntity<List<Resident>>(residents, HttpStatus.OK);
-//
-//        String accept = request.getHeader("Accept");
-//        if (accept != null && accept.contains("application/json")) {
-//            try {
-//                return new ResponseEntity<List<Resident>>(objectMapper.readValue("[ {\n  \"name\" : \"name\",\n  \"houseNo\" : \"houseNo\",\n  \"nic\" : \"nic\",\n  \"phoneNo\" : \"phoneNo\",\n  \"email\" : \"email\"\n}, {\n  \"name\" : \"name\",\n  \"houseNo\" : \"houseNo\",\n  \"nic\" : \"nic\",\n  \"phoneNo\" : \"phoneNo\",\n  \"email\" : \"email\"\n} ]", List.class), HttpStatus.OK);
-//            } catch (IOException e) {
-//                log.error("Couldn't serialize response for content type application/json", e);
-//                return new ResponseEntity<List<Resident>>(HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
-//        }
-//
-//        return new ResponseEntity<List<Resident>>(HttpStatus.NOT_IMPLEMENTED);
-
         List<Resident> residentsFromDB = residentRepo.findAll();
         return new ResponseEntity<List<Resident>>(residentsFromDB, HttpStatus.OK);
     }
@@ -102,23 +74,6 @@ public class ResidentsApiController implements ResidentsApi {
         }
 
         return new ResponseEntity<List<Resident>>(searchResult, HttpStatus.OK);
-//        List<Resident> residents = new ArrayList<>();
-//        Resident resident = new Resident();
-//        resident.setEmail("search@gmail.com");
-//        resident.setName("a");
-//        resident.setNic("12211232");
-//        residents.add(resident);
-//        String accept = request.getHeader("Accept");
-//        if (accept != null && accept.contains("application/json")) {
-//            try {
-//                return new ResponseEntity<List<Resident>>(objectMapper.readValue("[ {\n  \"name\" : \"name\",\n  \"houseNo\" : \"houseNo\",\n  \"nic\" : \"nic\",\n  \"phoneNo\" : \"phoneNo\",\n  \"email\" : \"email\"\n}, {\n  \"name\" : \"name\",\n  \"houseNo\" : \"houseNo\",\n  \"nic\" : \"nic\",\n  \"phoneNo\" : \"phoneNo\",\n  \"email\" : \"email\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-//            } catch (IOException e) {
-//                log.error("Couldn't serialize response for content type application/json", e);
-//                return new ResponseEntity<List<Resident>>(HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
-//        }
-//
-//        return new ResponseEntity<List<Resident>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 }

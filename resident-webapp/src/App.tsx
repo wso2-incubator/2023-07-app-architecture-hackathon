@@ -9,16 +9,18 @@ import ScheduleFormPage from "./pages/ScheduleFormPage";
 
 import NoPage from "./pages/NoPage";
 import Login from './pages/Login';
+import ViewActualVisit from './pages/ViewActualVisit';
 
 const authConfig = {
     "baseUrl": "https://api.asgardeo.io/t/architecturemindmeld",
     "clientID": "kMMz9FOPufwyYOCw6GKWltS8XuMa",
     "scope": [
         "openid",
-        "profile"
+        "profile",
+        "houseno"
     ],
-    "signInRedirectURL": "https://" + window.location.host + "/login",
-    "signOutRedirectURL": "https://" + window.location.host + "/login",
+    "signInRedirectURL": "https://" + window.location.host,
+    "signOutRedirectURL": "https://" + window.location.host,
 }
 
 function App() {
@@ -31,6 +33,7 @@ function App() {
                     <Route path="/" element={<Layout />}>
                         <Route index element={<Dashboard />} />
                         <Route path="/schedule" element={<ScheduleFormPage />} />
+                        <Route path="/visit/actual/:id" element={<ViewActualVisit />} />
                         <Route path="*" element={<NoPage />} />
                     </Route>
                 </Routes>

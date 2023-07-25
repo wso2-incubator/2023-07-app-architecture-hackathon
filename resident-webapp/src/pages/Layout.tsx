@@ -94,6 +94,10 @@ const Layout = () => {
     const [open, setOpen] = React.useState(true);
     const { state, signIn, signOut } = useAuthContext();
 
+    if (!state.isAuthenticated) {
+        return <Navigate to="/login" />;
+    }
+
     if (state.isLoading) {
         return (
             <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

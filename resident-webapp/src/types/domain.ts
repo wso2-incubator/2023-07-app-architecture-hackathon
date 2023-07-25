@@ -11,3 +11,17 @@ export interface ActualVisit {
     comment: string;
     visitId: string;
 };
+
+export interface ScheduleVisit {
+    inTime: string;
+    outTime: string;
+    houseNo: string;
+    visitorName: string;
+    visitorNIC: string;
+    visitorPhoneNo: string;
+    vehicleNumber: string;
+    visitDate: string;
+    isApproved: boolean;
+    comment: string;
+    visitId: string;
+};

@@ -7,23 +7,41 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Box, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useAuthContext } from "@asgardeo/auth-react";
+import { API } from '../../api';
+import { ScheduleVisit } from "../../types/domain"
 
-const rows = [
-    {
-        "houseNo": "string",
-        "visitorName": "string",
-        "visitorNIC": "string",
-        "visitorPhoneNo": "string",
-        "vehicleNumber": "string",
-        "visitDate": "string",
-        "isApproved": true,
-        "comment": "string",
-        "visitId": 0
-    },
-    // ... more rows here ...
-];
 
 export default function ScheduleList() {
+    const [visits, setVisits] = useState<ScheduleVisit[] | undefined>(undefined);
+    const { getAccessToken } = useAuthContext();
+
+
+    async function getVisits() {
+        const accessToken = await getAccessToken();
+        console.log(accessToken);
+        let url: string = '/scheduledVisits';
+        API.get(url, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        })
+            .then((response) => {
+                console.log(response);
+                setVisits(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    useEffect(() => {
+        if (visits === undefined) {
+            getVisits();
+        }
+    }, [visits]);
+
     return (
         <Box sx={{ width: '100%' }}>
             <Typography variant="h4" component="div" gutterBottom>
@@ -42,7 +60,7 @@ export default function ScheduleList() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {visits && visits.map((row) => (
                             <TableRow key={row.visitId}>
                                 <TableCell>{row.visitorName}</TableCell>
                                 <TableCell>{row.visitorNIC}</TableCell>

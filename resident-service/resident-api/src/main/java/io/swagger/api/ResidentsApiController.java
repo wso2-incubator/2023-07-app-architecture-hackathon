@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-07-25T04:20:14.086140772Z[GMT]")
 @RestController
@@ -91,17 +92,19 @@ public class ResidentsApiController implements ResidentsApi {
             produces = { "application/json", "text/plain" },
             method = RequestMethod.GET)
 //    public ResponseEntity<List<Resident>> getResidentsSearch(@Valid @RequestParam(value = "searchField", required = true) String searchField) {
-    public ResponseEntity<List<Resident>> getResidentsSearch(@NotNull @Valid @RequestParam(value = "searchField", required = true) String searchField,@NotNull @Valid @RequestParam(value = "value", required = true) String value) {
-//        List<Resident> residentsFromDB = residentRepo.findAll();
-
-        List<Resident> residents = new ArrayList<>();
-        Resident resident = new Resident();
-        resident.setEmail("search@gmail.com");
-        resident.setName("a");
-        resident.setNic("12211232");
-        residents.add(resident);
-        return new ResponseEntity<List<Resident>>(residents, HttpStatus.OK);
-
+    public ResponseEntity<List<Resident>> getResidentsSearch(@NotNull @Valid @RequestParam(value = "searchField", required = true) String searchField,@NotNull @Valid @RequestParam(value = "value", required = true) final String value) {
+        List<Resident> residentsFromDB = residentRepo.findAll();
+        List<Resident> searchResult = new ArrayList<>();
+        if (SearchField.NAME.toString().equals(searchField)) {
+            searchResult = residentsFromDB.stream().filter(r -> r.getName().contains(value)).collect(Collectors.toList());
+        }
+        return new ResponseEntity<List<Resident>>(searchResult, HttpStatus.OK);
+//        List<Resident> residents = new ArrayList<>();
+//        Resident resident = new Resident();
+//        resident.setEmail("search@gmail.com");
+//        resident.setName("a");
+//        resident.setNic("12211232");
+//        residents.add(resident);
 //        String accept = request.getHeader("Accept");
 //        if (accept != null && accept.contains("application/json")) {
 //            try {

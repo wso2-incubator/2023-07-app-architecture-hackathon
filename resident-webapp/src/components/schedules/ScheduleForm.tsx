@@ -8,9 +8,17 @@ import Stack from '@mui/material/Stack';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
+import { API } from '../../api';
 import { Box, Typography } from '@mui/material';
+import { ScheduleVisit } from "../../types/domain";
+import { useNavigate } from 'react-router-dom';
+import { AxiosResponse } from 'axios';
+import { useAuthContext } from "@asgardeo/auth-react";
+import DatePicker from '@mui/lab/DatePicker';
 
 export default function ScheduleForm() {
+    const navigate = useNavigate();
+    const { getAccessToken } = useAuthContext();
     const [values, setValues] = useState({
         houseNo: "",
         visitorName: "",
@@ -43,7 +51,23 @@ export default function ScheduleForm() {
         });
     };
 
+    const handleFinish = async () => {
+        const accessToken = await getAccessToken();
+        API.post('/scheduledVisits', values, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        }).then((response: AxiosResponse) => {
+            const scheduleVisit: ScheduleVisit = response.data;
+            navigate(`/visit/actual/${scheduleVisit.visitId}`);
+        }).catch((error: any) => {
+            console.log(error);
+        });
+    };
+
+
     const handleSubmit = (event: { preventDefault: () => void; }) => {
+        handleFinish();
         event.preventDefault();
         console.log(values);
     };
@@ -61,17 +85,7 @@ export default function ScheduleForm() {
                     <TextField name="visitorPhoneNo" label="Visitor Phone Number" value={values.visitorPhoneNo} onChange={handleChange} />
                     <TextField name="vehicleNumber" label="Vehicle Number" value={values.vehicleNumber} onChange={handleChange} />
                     <TextField name="visitDate" label="Visit Date" value={values.visitDate} onChange={handleChange} />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={values.isApproved}
-                                onChange={handleCheckboxChange}
-                                name="isApproved"
-                                color="primary"
-                            />
-                        }
-                        label="Is Approved"
-                    />
+                    <DatePicker label="Uncontrolled picker" />
                     <TextField name="comment" label="Comment" value={values.comment} onChange={handleChange} />
                 </Stack>
                 <br />

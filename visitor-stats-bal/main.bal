@@ -35,7 +35,7 @@ public type Details record {
     string comment;
 };
 
-type VisitSvcResponse record {
+type VisitSvcResponse record {|
     string comment;
     string houseNo;
     string inTime;
@@ -47,19 +47,25 @@ type VisitSvcResponse record {
     string visitorNIC;
     string vehicleNumber;
     string visitorPhoneNo;
-};
+|};
 
 sheets:Client spreadsheetClient = check new (spreadsheetConfig);
 
 
-public function insertDetails(Details details) returns error? {
-    error? clearAllBySheetName = spreadsheetClient->clearAllBySheetName(spreadsheetId, sheetName);
-    error? append = check spreadsheetClient->appendRowToSheet(spreadsheetId, sheetName,
-    ["Date", "In Time", "Out Time", "House", "Visitor Name", "Visitor NIC", "Vehicle Number", "Visitor Phone", "Comment"]);
-    append = check spreadsheetClient->appendRowToSheet(spreadsheetId, sheetName,
-    [details.date, details.inTime, details.outTime, details.houseNumber, details.visitorName, details.visitorNic, details.vehicleNumber, details.visitorPhone, details.comment]);
+public function insertVisit(VisitSvcResponse visit) {
+    error? append = spreadsheetClient->appendRowToSheet(spreadsheetId, sheetName,
+    [visit.visitDate, visit.inTime, visit.outTime, visit.houseNo, visit.visitorName, visit.visitorNIC, visit.vehicleNumber, visit.visitorPhoneNo, visit.comment]);
 }
 
+public function main() {
+    // Clearing the sheet
+    error? clearAllBySheetName = spreadsheetClient->clearAllBySheetName(spreadsheetId, sheetName);
+    error? append = spreadsheetClient->appendRowToSheet(spreadsheetId, sheetName,
+    ["Date", "In Time", "Out Time", "House", "Visitor Name", "Visitor NIC", "Vehicle Number", "Visitor Phone", "Comment"]);
+
+
+public function main() {
+    
 public function main() {
 
     http:Client|error visitClient = new (visitStatAPIUrl,
@@ -74,14 +80,18 @@ public function main() {
         return;
     }
 
-    Details[]|error detailsResponse = visitClient->/actualVisits;
-    if detailsResponse is error {
-        io:println("Error while getting the response.");
+    VisitSvcResponse[]|error visitResponse = visitClient->/actualVisits;
+    if visitResponse is error {
+        io:println("Error while getting the response.", visitResponse);
         return;
     }
-    foreach Details detail in detailsResponse {
-       error? insertDetailResponse = insertDetails(detail);
+    foreach VisitSvcResponse visit in visitResponse {
+       error? insertDetailResponse = insertVisit(visit);
+       if (insertDetailResponse is error) {
+           io:println("Error while inserting the data.", insertDetailResponse);
+           return;
+       }
     }
 
-    io:println("Hello, World!");
+    io:println("Successfully inserted the data.");
 }

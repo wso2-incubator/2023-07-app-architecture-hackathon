@@ -86,14 +86,16 @@ public function main() {
         time:Utc|error visitDate = time:utcFromString(visit.visitDate);
         if visitDate is error {
             io:println("Date is not in the expected format", visitResponse);
+            continue;
         } else {
-            time:Utc currentTime = time:utcNow();
-            time:Utc startTime = utcSubtractSeconds(currentTime, 60 * 60);
-            if (visitDate < startTime) {
-                continue;
-            }
+            // time:Utc currentTime = time:utcNow();
+            // time:Utc startTime = utcSubtractSeconds(currentTime, 60 * 60);
+            // if (visitDate < startTime) {
+            //     continue;
+            // }
+            //commenting as date returned by the API is very old
         }
-        
+
         error? insertDetailResponse = insertVisit(visit);
         if (insertDetailResponse is error) {
             io:println("Error while inserting the data.", insertDetailResponse);

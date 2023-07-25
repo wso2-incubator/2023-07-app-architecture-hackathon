@@ -64,10 +64,6 @@ public function main() {
     ["Date", "In Time", "Out Time", "House", "Visitor Name", "Visitor NIC", "Vehicle Number", "Visitor Phone", "Comment"]);
 
 
-public function main() {
-    
-public function main() {
-
     http:Client|error visitClient = new (visitStatAPIUrl,
         auth = {
             tokenUrl: visitStatAPITokenURL,

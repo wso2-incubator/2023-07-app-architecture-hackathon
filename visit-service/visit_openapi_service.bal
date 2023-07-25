@@ -246,7 +246,76 @@ service /visit on httpListener {
     resource function put actualVisits(ActualVisit payload) returns InternalServerErrorString|ActualVisit {
     }
 
-    resource function post actualVisits(NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
+   resource function post actualVisits(@http:Payload NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
+        int|error visitId = random:createIntInRange(0, 10000000);
+        if visitId is error {
+            return <InternalServerErrorString>{body: "Failed to generate visit id."};
+        }
+
+        db:VisitDataInsert visitDataInsert = {
+            visitId: visitId,
+            houseNo: payload.houseNo,
+            visitorName: payload.visitorName,
+            visitorNIC: payload.visitorNIC,
+            visitorPhoneNo: payload.visitorPhoneNo,
+            vehicleNumber: payload.vehicleNumber,
+            visitDate: payload.visitDate,
+            isApproved: payload.isApproved,
+            comment: payload.comment
+        };
+        int[]|error insertedIds = self.db->/visitdata.post([visitDataInsert]);
+        if insertedIds is error {
+            string msg = "Failed to add the scheduled vist.";
+            log:printError(msg, 'error = insertedIds);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+        time:Utc now = time:utcNow();
+        time:Civil civilNow = time:utcToCivil(now);
+        time:Date createdTime = {
+            year: civilNow.year,
+            month: civilNow.month,
+            day: civilNow.day,
+            hour: civilNow.hour,
+            minute: civilNow.minute,
+            second: civilNow.second
+        };
+
+         int|error actualVisitId = random:createIntInRange(0, 10000000);
+         if actualVisitId is error {
+            return <InternalServerErrorString>{body: "Failed to generate actual visit id."};
+        }
+
+        db:ActualVisitInsert actualVisitInsert = {
+            id: actualVisitId,
+            createdTime,
+            actualvisitVisitId: visitId,
+            // status: db:PENDING,
+            inTime: payload.inTime,
+            createdBy: "user",
+            outTime: payload.outTime
+        };
+
+        int[]|error actualVisitIds = self.db->/actualvisits.post([actualVisitInsert]);
+        if actualVisitIds is error {
+            string msg = "Failed to add the actual vist.";
+            log:printError(msg, 'error = actualVisitIds);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+      return {
+            visitId: visitDataInsert.visitId,
+            houseNo: visitDataInsert.houseNo,
+            visitorName: visitDataInsert.visitorName,
+            visitorNIC: visitDataInsert.visitorNIC,
+            visitorPhoneNo: visitDataInsert.visitorPhoneNo,
+            vehicleNumber: visitDataInsert.vehicleNumber,
+            visitDate: visitDataInsert.visitDate,
+            isApproved: visitDataInsert.isApproved,
+            comment: visitDataInsert.comment,
+            inTime: actualVisitInsert.inTime,
+            outTime: actualVisitInsert.outTime
+        };
     }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {

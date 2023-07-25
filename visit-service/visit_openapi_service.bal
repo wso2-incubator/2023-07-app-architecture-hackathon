@@ -76,7 +76,7 @@ service /visit on httpListener {
     resource function post scheduledVisits(NewScheduledVisit payload) returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
         int|error visitId = random:createIntInRange(0, 10000000);
         if visitId is error {
-            return <InternalServerErrorString>{body: "Failed to generate visit id."};
+            return <InternalServerErrorString>{body: "Failed to schedule the visit"};
         }
 
         db:VisitDataInsert visitDataInsert = {
@@ -92,7 +92,7 @@ service /visit on httpListener {
         };
         int[]|error insertedIds = self.db->/visitdata.post([visitDataInsert]);
         if insertedIds is error {
-            string msg = "Failed to add the scheduled vist.";
+            string msg = "Failed to add the scheduled visit.";
             log:printError(msg, 'error = insertedIds);
             return <InternalServerErrorString>{body: msg};
         }
@@ -123,7 +123,7 @@ service /visit on httpListener {
 
         int[]|error scheduledVisitIds = self.db->/scheduledvisits.post([scheduledVisitInsert]);
         if scheduledVisitIds is error {
-            string msg = "Failed to add the scheduled vist.";
+            string msg = "Failed to add the scheduled visit.";
             log:printError(msg, 'error = scheduledVisitIds);
             return <InternalServerErrorString>{body: msg};
         }
@@ -175,7 +175,7 @@ service /visit on httpListener {
         };
         db:VisitData|persist:Error updatedVisit = self.db->/visitdata/[visitId].put(visitDataUpdate);
         if updatedVisit is persist:Error {
-            string msg = string `Failed to update the scheduled vist: ${visitId}`;
+            string msg = string `Failed to update the scheduled visit: ${visitId}`;
             log:printError(msg, 'error = updatedVisit);
             return <InternalServerErrorString>{body: msg};
         }

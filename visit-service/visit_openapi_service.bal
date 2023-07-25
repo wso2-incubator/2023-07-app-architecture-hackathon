@@ -400,29 +400,31 @@ service /visit on httpListener {
         };
     }
 
-    resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {
-
-        ActualVisitEntity|error actualVisitEntry = self.db->/actualvisits/[visitId]();
-
-        if actualVisitEntry is error {
-            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+    resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden|http:NotFound {
+        ActualVisitEntity|persist:Error actualVisitEntry = self.db->/actualvisits/[visitId]();
+        if actualVisitEntry is persist:NotFoundError {
+            string msg = string `Actual visit: ${visitId} not found.`;
+            log:printError(msg);
+            return <http:NotFound>{body: msg};
+        } else if actualVisitEntry is persist:Error {
+            string msg = "Failed to retrieve the actual visit";
+            log:printError(msg, 'error = actualVisitEntry);
+            return <InternalServerErrorString>{body: msg};
+        } else {
+            return {
+                visitId: actualVisitEntry.visitData.visitId,
+                houseNo: actualVisitEntry.visitData.houseNo,
+                visitorName: actualVisitEntry.visitData.visitorName,
+                visitorNIC: actualVisitEntry.visitData.visitorNIC,
+                visitorPhoneNo: actualVisitEntry.visitData.visitorPhoneNo,
+                vehicleNumber: actualVisitEntry.visitData.vehicleNumber,
+                visitDate: actualVisitEntry.visitData.visitDate,
+                isApproved: actualVisitEntry.visitData.isApproved,
+                comment: actualVisitEntry.visitData.comment,
+                inTime: actualVisitEntry.inTime,
+                outTime: actualVisitEntry.outTime
+            };
         }
-
-        ActualVisit actualVisit = {
-            visitId: actualVisitEntry.visitData.visitId,
-            houseNo: actualVisitEntry.visitData.houseNo,
-            visitorName: actualVisitEntry.visitData.visitorName,
-            visitorNIC: actualVisitEntry.visitData.visitorNIC,
-            visitorPhoneNo: actualVisitEntry.visitData.visitorPhoneNo,
-            vehicleNumber: actualVisitEntry.visitData.vehicleNumber,
-            visitDate: actualVisitEntry.visitData.visitDate,
-            isApproved: actualVisitEntry.visitData.isApproved,
-            comment: actualVisitEntry.visitData.comment,
-            inTime: actualVisitEntry.inTime,
-            outTime: actualVisitEntry.outTime
-        };
-
-        return actualVisit;
     }
 
     resource function get actualVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ActualVisit[] {
@@ -432,93 +434,93 @@ service /visit on httpListener {
         match searchField {
             "HOUSE_NO" => {
                 visits = from var actualVisitEntity in actualVisitStream
-                where actualVisitEntity.visitData.houseNo == value
-                select {
-                    visitId: actualVisitEntity.visitData.visitId,
-                    houseNo: actualVisitEntity.visitData.houseNo,
-                    visitorName: actualVisitEntity.visitData.visitorName,
-                    visitorNIC: actualVisitEntity.visitData.visitorNIC,
-                    visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
-                    vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
-                    visitDate: actualVisitEntity.visitData.visitDate,
-                    isApproved: actualVisitEntity.visitData.isApproved,
-                    comment: actualVisitEntity.visitData.comment,
-                    inTime: actualVisitEntity.inTime,
-                    outTime: actualVisitEntity.outTime
-                    
-                };
+                    where actualVisitEntity.visitData.houseNo == value
+                    select {
+                        visitId: actualVisitEntity.visitData.visitId,
+                        houseNo: actualVisitEntity.visitData.houseNo,
+                        visitorName: actualVisitEntity.visitData.visitorName,
+                        visitorNIC: actualVisitEntity.visitData.visitorNIC,
+                        visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
+                        vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
+                        visitDate: actualVisitEntity.visitData.visitDate,
+                        isApproved: actualVisitEntity.visitData.isApproved,
+                        comment: actualVisitEntity.visitData.comment,
+                        inTime: actualVisitEntity.inTime,
+                        outTime: actualVisitEntity.outTime
+
+                    };
             }
             "VISITOR_NAME" => {
                 visits = from var actualVisitEntity in actualVisitStream
-                where actualVisitEntity.visitData.visitorName == value
-                select {
-                    visitId: actualVisitEntity.visitData.visitId,
-                    houseNo: actualVisitEntity.visitData.houseNo,
-                    visitorName: actualVisitEntity.visitData.visitorName,
-                    visitorNIC: actualVisitEntity.visitData.visitorNIC,
-                    visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
-                    vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
-                    visitDate: actualVisitEntity.visitData.visitDate,
-                    isApproved: actualVisitEntity.visitData.isApproved,
-                    comment: actualVisitEntity.visitData.comment,
-                    inTime: actualVisitEntity.inTime,
-                    outTime: actualVisitEntity.outTime
-                    
-                };
+                    where actualVisitEntity.visitData.visitorName == value
+                    select {
+                        visitId: actualVisitEntity.visitData.visitId,
+                        houseNo: actualVisitEntity.visitData.houseNo,
+                        visitorName: actualVisitEntity.visitData.visitorName,
+                        visitorNIC: actualVisitEntity.visitData.visitorNIC,
+                        visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
+                        vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
+                        visitDate: actualVisitEntity.visitData.visitDate,
+                        isApproved: actualVisitEntity.visitData.isApproved,
+                        comment: actualVisitEntity.visitData.comment,
+                        inTime: actualVisitEntity.inTime,
+                        outTime: actualVisitEntity.outTime
+
+                    };
             }
             "VISITOR_NIC" => {
                 visits = from var actualVisitEntity in actualVisitStream
-                where actualVisitEntity.visitData.visitorNIC == value
-                select {
-                    visitId: actualVisitEntity.visitData.visitId,
-                    houseNo: actualVisitEntity.visitData.houseNo,
-                    visitorName: actualVisitEntity.visitData.visitorName,
-                    visitorNIC: actualVisitEntity.visitData.visitorNIC,
-                    visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
-                    vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
-                    visitDate: actualVisitEntity.visitData.visitDate,
-                    isApproved: actualVisitEntity.visitData.isApproved,
-                    comment: actualVisitEntity.visitData.comment,
-                    inTime: actualVisitEntity.inTime,
-                    outTime: actualVisitEntity.outTime
-                    
-                };
+                    where actualVisitEntity.visitData.visitorNIC == value
+                    select {
+                        visitId: actualVisitEntity.visitData.visitId,
+                        houseNo: actualVisitEntity.visitData.houseNo,
+                        visitorName: actualVisitEntity.visitData.visitorName,
+                        visitorNIC: actualVisitEntity.visitData.visitorNIC,
+                        visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
+                        vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
+                        visitDate: actualVisitEntity.visitData.visitDate,
+                        isApproved: actualVisitEntity.visitData.isApproved,
+                        comment: actualVisitEntity.visitData.comment,
+                        inTime: actualVisitEntity.inTime,
+                        outTime: actualVisitEntity.outTime
+
+                    };
             }
             "VISITOR_PHONE_NO" => {
                 visits = from var actualVisitEntity in actualVisitStream
-                where actualVisitEntity.visitData.visitorPhoneNo == value
-                select {
-                    visitId: actualVisitEntity.visitData.visitId,
-                    houseNo: actualVisitEntity.visitData.houseNo,
-                    visitorName: actualVisitEntity.visitData.visitorName,
-                    visitorNIC: actualVisitEntity.visitData.visitorNIC,
-                    visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
-                    vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
-                    visitDate: actualVisitEntity.visitData.visitDate,
-                    isApproved: actualVisitEntity.visitData.isApproved,
-                    comment: actualVisitEntity.visitData.comment,
-                    inTime: actualVisitEntity.inTime,
-                    outTime: actualVisitEntity.outTime
-                    
-                };
+                    where actualVisitEntity.visitData.visitorPhoneNo == value
+                    select {
+                        visitId: actualVisitEntity.visitData.visitId,
+                        houseNo: actualVisitEntity.visitData.houseNo,
+                        visitorName: actualVisitEntity.visitData.visitorName,
+                        visitorNIC: actualVisitEntity.visitData.visitorNIC,
+                        visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
+                        vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
+                        visitDate: actualVisitEntity.visitData.visitDate,
+                        isApproved: actualVisitEntity.visitData.isApproved,
+                        comment: actualVisitEntity.visitData.comment,
+                        inTime: actualVisitEntity.inTime,
+                        outTime: actualVisitEntity.outTime
+
+                    };
             }
             "VEHICLE_NUMBER" => {
                 visits = from var actualVisitEntity in actualVisitStream
-                where actualVisitEntity.visitData.vehicleNumber == value
-                select {
-                    visitId: actualVisitEntity.visitData.visitId,
-                    houseNo: actualVisitEntity.visitData.houseNo,
-                    visitorName: actualVisitEntity.visitData.visitorName,
-                    visitorNIC: actualVisitEntity.visitData.visitorNIC,
-                    visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
-                    vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
-                    visitDate: actualVisitEntity.visitData.visitDate,
-                    isApproved: actualVisitEntity.visitData.isApproved,
-                    comment: actualVisitEntity.visitData.comment,
-                    inTime: actualVisitEntity.inTime,
-                    outTime: actualVisitEntity.outTime
-                    
-                };
+                    where actualVisitEntity.visitData.vehicleNumber == value
+                    select {
+                        visitId: actualVisitEntity.visitData.visitId,
+                        houseNo: actualVisitEntity.visitData.houseNo,
+                        visitorName: actualVisitEntity.visitData.visitorName,
+                        visitorNIC: actualVisitEntity.visitData.visitorNIC,
+                        visitorPhoneNo: actualVisitEntity.visitData.visitorPhoneNo,
+                        vehicleNumber: actualVisitEntity.visitData.vehicleNumber,
+                        visitDate: actualVisitEntity.visitData.visitDate,
+                        isApproved: actualVisitEntity.visitData.isApproved,
+                        comment: actualVisitEntity.visitData.comment,
+                        inTime: actualVisitEntity.inTime,
+                        outTime: actualVisitEntity.outTime
+
+                    };
             }
             _ => {
                 visits = error("Invalid search field.");

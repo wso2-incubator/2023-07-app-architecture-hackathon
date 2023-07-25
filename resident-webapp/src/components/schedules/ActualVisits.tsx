@@ -23,7 +23,7 @@ export default function ScheduleList() {
     async function getVisits() {
         const accessToken = await getAccessToken();
         console.log(accessToken);
-        let url: string = '/visits';
+        let url: string = '/actualVisits';
         API.get(url, {
             headers: {
                 Authorization: `Bearer ${accessToken}`

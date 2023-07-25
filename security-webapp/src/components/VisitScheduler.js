@@ -6,17 +6,21 @@ const VisitScheduler = ({ onScheduleVisit }) => {
   const { state, httpRequest } = useAuthContext();
   const [showModal, setShowModal] = useState(false);
 
-  const [formData, setFormData] = useState({
+  var visit = {
     houseNo: '',
     visitorName: '',
     visitorNIC: '',
     visitorPhoneNo: '',
     vehicleNumber: '',
     visitorPhoneNo: '',
-    visitDate: '',
+    visitDate: new Date().toISOString().slice(0, -1), // Remove the last 'Z' to set the default time as the current time
+    inTime: new Date().toISOString().slice(0, -1), // Remove the last 'Z' to set the default time as the current time
+    outTime: '',
     isApproved: false,
     comment: '',
-  });
+  };
+
+  const [formData, setFormData] = useState(visit);
 
   const scheduleVisit = () => {
     setShowModal(true);
@@ -33,14 +37,16 @@ const VisitScheduler = ({ onScheduleVisit }) => {
 
 
   const handleAddItemSubmit = async () => {
-    formData.visitDate = formData.visitDate + ":00.00Z";
+    formData.visitDate = formData.visitDate + "Z";
+    formData.inTime = formData.visitDate
+    formData.outTime = formData.outTime + ":00.00Z";;
     const requestConfig = {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*,http://localhost:3000"
       },
       method: "POST",
-      url: window.config.resourceServerURL + '/scheduledVisits',
+      url: window.config.resourceServerURL + '/actualVisits',
       data: formData,
       withCredentials: false
     };
@@ -48,6 +54,8 @@ const VisitScheduler = ({ onScheduleVisit }) => {
     httpRequest(requestConfig)
       .then((response) => {
         console.log(response);
+        setFormData(visit);
+        console.log(formData);
       })
       .catch((error) => {
         console.error(error);
@@ -91,7 +99,7 @@ const VisitScheduler = ({ onScheduleVisit }) => {
           </Button>
         }
       >
-        <Modal.Header>Schedule a New Visit</Modal.Header>
+        <Modal.Header>Enter a New Visit</Modal.Header>
         <Modal.Content>
           <Form onSubmit={handleSubmit}>
             <Form.Field>
@@ -155,6 +163,27 @@ const VisitScheduler = ({ onScheduleVisit }) => {
                 type="datetime-local"
                 name="visitDate"
                 value={formData.visitDate}
+                onChange={handleChange}
+                required
+                readOnly
+              />
+            </Form.Field>
+            {/* <Form.Field>
+              <label>In Time</label>
+              <input
+                type="datetime-local"
+                name="inTime"
+                value={formData.inTime}
+                onChange={handleChange}
+                required
+              />
+            </Form.Field> */}
+            <Form.Field>
+              <label>Out Time</label>
+              <input
+                type="datetime-local"
+                name="outTime"
+                value={formData.outTime}
                 onChange={handleChange}
                 required
               />

@@ -64,20 +64,6 @@ const VisitScheduler = ({ onScheduleVisit }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    //if the input field name is visitDate
-    // if (name === "visitDate") {
-    //   var formattedValue = value + ":00.00Z";
-    //   setFormData({
-    //     ...formData,
-    //     [name]: formattedValue,
-    //   });
-    // } else {
-    //   setFormData({
-    //     ...formData,
-    //     [name]: value,
-    //   });
-    // }
-
     setFormData({
       ...formData,
       [name]: value,

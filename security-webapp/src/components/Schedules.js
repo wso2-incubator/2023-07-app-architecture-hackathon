@@ -5,6 +5,8 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import UnderConstructionMessage from './UnderConstructionMessage';
 import SecurityStaffWelcome from './SecurityStaffWelcome';
 import { Table, Header, HeaderCell, HeaderRow, Body, Row, Cell } from '@table-library/react-table-library/table';
+import { useTheme } from '@table-library/react-table-library/theme';
+import { getTheme } from '@table-library/react-table-library/baseline';
 
 function Schedules() {
 
@@ -16,6 +18,8 @@ function Schedules() {
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
+
+  const theme = useTheme(getTheme());
 
   const { state, httpRequest } = useAuthContext();
   var path = "/items";
@@ -68,15 +72,11 @@ function Schedules() {
   if(state.isAuthenticated) {
     return (
       <Container>
-                 {/* <label htmlFor="search">
-         Search by Task:
-         <input id="search" type="text" onChange={handleSearch} />
-       </label> */}
-       <div class="ui input">
-          <input type="text" placeholder="Search..." />
-      </div>
+        <div class="ui input">
+            <input type="text" placeholder="Search..." onChange={handleSearch} />
+        </div>
 
-             <Table data={data}>
+             <Table data={data} theme={theme}>
          {(tableList) => (
          <>
            <Header>
@@ -94,16 +94,16 @@ function Schedules() {
            </Header>
            <Body>
              {tableList.map((item) => (
-               <Row key={item.houseNo} item={item}>
-                 <Cell>{item.houseNo}</Cell>
-                 <Cell>{item.visitorName}</Cell>
-                 <Cell>{item.visitorNIC}</Cell>
-                 <Cell>{item.visitorPhoneNo}</Cell>
-                 <Cell>{item.vehicleNumber}</Cell>
-                 <Cell>{item.visitDate}</Cell>
-                 <Cell>{item.isApproved}</Cell>
-                 <Cell>{item.comment}</Cell>
-                 <Cell>{item.visitId}</Cell>
+               <Row key={item.houseNo}>
+                 <Cell data-label="houseNo">{item.houseNo}</Cell>
+                 <Cell data-label="visitorName">{item.visitorName}</Cell>
+                 <Cell data-label="visitorNIC">{item.visitorNIC}</Cell>
+                 <Cell data-label="visitorPhoneNo">{item.visitorPhoneNo}</Cell>
+                 <Cell data-label="vehicleNumber">{item.vehicleNumber}</Cell>
+                 <Cell data-label="visitDate">{item.visitDate}</Cell>
+                 <Cell data-label="isApproved">{item.isApproved.name}</Cell>
+                 <Cell data-label="comment">{item.comment}</Cell>
+                 <Cell data-label="visitId">{item.visitId}</Cell>
                </Row>
              ))}
            </Body>

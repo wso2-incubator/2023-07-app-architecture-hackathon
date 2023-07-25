@@ -50,7 +50,7 @@ export default function ScheduleList() {
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
-                        <TableRow>
+                        <TableRow style={{backgroundColor:'gray', color: 'white',}}>
                             <TableCell>Visitor Name</TableCell>
                             <TableCell>Visitor NIC</TableCell>
                             <TableCell>Visitor Phone No</TableCell>

@@ -101,6 +101,7 @@ public function main() {
             io:println("Error while inserting the data.", insertDetailResponse);
             return;
         }
+        io:println("Published a visit ", visit.visitId);
     }
 
     io:println("Successfully inserted the data.");

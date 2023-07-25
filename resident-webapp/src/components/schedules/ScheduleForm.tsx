@@ -60,7 +60,7 @@ export default function ScheduleForm() {
                     <TextField name="visitorNIC" label="Visitor NIC" value={values.visitorNIC} onChange={handleChange} />
                     <TextField name="visitorPhoneNo" label="Visitor Phone Number" value={values.visitorPhoneNo} onChange={handleChange} />
                     <TextField name="vehicleNumber" label="Vehicle Number" value={values.vehicleNumber} onChange={handleChange} />
-                    <TextField name="visitDate" label="Visit Date" value={values.vehicleNumber} onChange={handleChange} />
+                    <TextField name="visitDate" label="Visit Date" value={values.visitDate} onChange={handleChange} />
                     <FormControlLabel
                         control={
                             <Checkbox

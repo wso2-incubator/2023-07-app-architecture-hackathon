@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Menu, Container, Button } from 'semantic-ui-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAuthContext, SecureRoute } from "@asgardeo/auth-react";
 import Schedules from './components/Schedules';
+import VisitScheduler from './components/VisitScheduler';
 
 // Main app component
 const App = () => {
@@ -90,6 +91,7 @@ const App = () => {
             <Routes>
               <Route exact path="/">
               </Route>
+              {/* <Route path="/schedule-visit" component={VisitScheduler} /> */}
             </Routes>
             <Schedules/>
           </div>

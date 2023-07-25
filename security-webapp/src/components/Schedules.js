@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Input} from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { useAuthContext } from "@asgardeo/auth-react";
 // import UnderConstructionMessage from './UnderConstructionMessage';
-import UnderConstructionMessage from './UnderConstructionMessage';
+// import UnderConstructionMessage from './UnderConstructionMessage';
 import SecurityStaffWelcome from './SecurityStaffWelcome';
 import { Table, Header, HeaderCell, HeaderRow, Body, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
@@ -30,7 +30,7 @@ function Schedules() {
   const theme = useTheme(getTheme());
 
   const { state, httpRequest } = useAuthContext();
-  var path = "/items";
+  // var path = "/items";
   var isWithCredentials = false;
 
   const requestConfig = {
@@ -70,11 +70,7 @@ function Schedules() {
 
   const data = {
     nodes: searchResults.filter((item) =>      
-      (item.visitorName && item.visitorName.toLowerCase().includes(search.toLowerCase())) ||
-      (item.visitorNIC && item.visitorNIC.includes(search)) ||
-      (item.visitorPhoneNo && item.visitorPhoneNo.includes(search)) ||
-      (item.vehicleNumber && item.vehicleNumber.includes(search)) ||
-      (item.houseNo && item.houseNo.includes(search)) 
+      item.visitorName.toLowerCase().includes(search.toLowerCase())
     ),
   };
 
@@ -104,7 +100,7 @@ function Schedules() {
            </Header>
            <Body>
              {tableList.map((item) => (
-               <Row key={item.houseNo}>
+               <Row key={item.visitId}>
                  <Cell data-label="houseNo">{item.houseNo}</Cell>
                  <Cell data-label="visitorName">{item.visitorName}</Cell>
                  <Cell data-label="visitorNIC">{item.visitorNIC}</Cell>

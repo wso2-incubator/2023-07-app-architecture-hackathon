@@ -24,6 +24,7 @@ import Chart from '../components/dashboard/Chart';
 import Deposits from '../components/dashboard/Deposits';
 import UserMenu from '../components/UserMenu';
 import { CircularProgress } from '@mui/material';
+import Login from './Login';
 
 function Copyright(props: any) {
     return (
@@ -95,7 +96,7 @@ const Layout = () => {
     const { state, signIn, signOut } = useAuthContext();
 
     if (!state.isAuthenticated) {
-        return <Navigate to="/login" />;
+        return <Login />;
     }
 
     if (state.isLoading) {

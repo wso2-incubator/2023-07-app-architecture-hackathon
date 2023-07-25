@@ -120,7 +120,7 @@ function testGetActualvisitsSearch() returns error? {
 }
 
 @test:Config{}
-function testPutScheduledvisitsVisitid() returns error? {
+function testPostScheduledvisitsVisitid() returns error? {
     //int visitId = 9238450; // Replace with the actual visitId you want to test
     json payload = {
         "visitId" : "9238450",
@@ -134,5 +134,27 @@ function testPutScheduledvisitsVisitid() returns error? {
         "comment": "Sample Comment"
     };
     http:Response response = check testClient->/scheduledVisits.post(payload);
+    test:assertEquals(response.statusCode, 201, "Response status code should be 201");
+    log:printInfo((check response.getJsonPayload()).toString());
+
+}
+
+function testPutActualvisitsByVisitid() returns error? {
+    json payload = {
+        "visitId" : "9238450",
+        "houseNo": "ABC123",
+        "visitorName": "John Doe",
+        "visitorNIC": "123456789",
+        "visitorPhoneNo": "9876543210",
+        "vehicleNumber": "XYZ987",
+        "visitDate": "2023-08-01",
+        "isApproved": true,
+        "outTime": "2023-08-15T16:00:00Z",
+        "inTime": "2023-08-15T16:00:00Z",
+        "comment": "Sample Comment"
+    };
+    http:Response response = check testClient->/actualVisits.put(payload);
     test:assertEquals(response.statusCode, 201, "Response status code should be 200");
+    log:printInfo((check response.getJsonPayload()).toString());
+
 }

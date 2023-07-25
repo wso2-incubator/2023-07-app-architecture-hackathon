@@ -195,8 +195,12 @@ service /visit on httpListener {
 
     resource function get scheduledVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ScheduledVisit[] {
         stream<ScheduledVisitEntity, error?> scheduledVisitStream = self.db->/scheduledvisits();
-        ScheduledVisit[]|error visits =
-            from var {visitData} in scheduledVisitStream
+        
+        ScheduledVisit[]|error visits;
+
+        match searchField {
+            "HOUSE_NO" => {
+                visits = from var {visitData} in scheduledVisitStream
                 where visitData.houseNo == value
                 select {
                     visitId: visitData.visitId,
@@ -209,6 +213,71 @@ service /visit on httpListener {
                     isApproved: visitData.isApproved,
                     comment: visitData.comment
                 };
+            }
+            "VISITOR_NAME" => {
+                visits = from var {visitData} in scheduledVisitStream
+                where visitData.visitorName == value
+                select {
+                    visitId: visitData.visitId,
+                    houseNo: visitData.houseNo,
+                    visitorName: visitData.visitorName,
+                    visitorNIC: visitData.visitorNIC,
+                    visitorPhoneNo: visitData.visitorPhoneNo,
+                    vehicleNumber: visitData.vehicleNumber,
+                    visitDate: visitData.visitDate,
+                    isApproved: visitData.isApproved,
+                    comment: visitData.comment
+                };
+            }
+            "VISITOR_NIC" => {
+                visits = from var {visitData} in scheduledVisitStream
+                where visitData.visitorNIC == value
+                select {
+                    visitId: visitData.visitId,
+                    houseNo: visitData.houseNo,
+                    visitorName: visitData.visitorName,
+                    visitorNIC: visitData.visitorNIC,
+                    visitorPhoneNo: visitData.visitorPhoneNo,
+                    vehicleNumber: visitData.vehicleNumber,
+                    visitDate: visitData.visitDate,
+                    isApproved: visitData.isApproved,
+                    comment: visitData.comment
+                };
+            }
+            "VISITOR_PHONE_NO" => {
+                visits = from var {visitData} in scheduledVisitStream
+                where visitData.visitorPhoneNo == value
+                select {
+                    visitId: visitData.visitId,
+                    houseNo: visitData.houseNo,
+                    visitorName: visitData.visitorName,
+                    visitorNIC: visitData.visitorNIC,
+                    visitorPhoneNo: visitData.visitorPhoneNo,
+                    vehicleNumber: visitData.vehicleNumber,
+                    visitDate: visitData.visitDate,
+                    isApproved: visitData.isApproved,
+                    comment: visitData.comment
+                };
+            }
+            "VEHICLE_NUMBER" => {
+                visits = from var {visitData} in scheduledVisitStream
+                where visitData.vehicleNumber == value
+                select {
+                    visitId: visitData.visitId,
+                    houseNo: visitData.houseNo,
+                    visitorName: visitData.visitorName,
+                    visitorNIC: visitData.visitorNIC,
+                    visitorPhoneNo: visitData.visitorPhoneNo,
+                    vehicleNumber: visitData.vehicleNumber,
+                    visitDate: visitData.visitDate,
+                    isApproved: visitData.isApproved,
+                    comment: visitData.comment
+                };
+            }
+            _ => {
+                visits = error("Invalid search field.");
+            }
+        }
 
         if visits is error {
             return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};

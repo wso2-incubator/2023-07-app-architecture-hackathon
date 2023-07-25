@@ -13,7 +13,9 @@ function Schedules() {
   // const [items, setitems] = useState([]);
   // const [searchTerm, setSearchTerm] = useState('');
   // const [searchResults, setSearchResults] = useState([]);
-  const baseUrl = process.env.REACT_APP_RESOURCE_SERVER_URL;
+  // const baseUrl = process.env.REACT_APP_RESOURCE_SERVER_URL;
+  const scheduledVisitURL = window.config.scheduledVisitURL;
+  const [searchResults, setSearchResults] = useState([]);
   const [search, setSearch] = useState('');
   const handleSearch = (event) => {
     setSearch(event.target.value);
@@ -23,7 +25,6 @@ function Schedules() {
 
   const { state, httpRequest } = useAuthContext();
   var path = "/items";
-  var isAttachToken = false;
   var isWithCredentials = false;
 
   const requestConfig = {
@@ -31,12 +32,11 @@ function Schedules() {
       "Access-Control-Allow-Origin": "*"
     },
     method: "GET",
-    url: baseUrl + path,
-    attachToken: isAttachToken,
+    url: scheduledVisitURL + "/scheduledVisits",
     withCredentials: isWithCredentials
   };
 
-  
+
 
   useEffect(() => {
     // call API
@@ -49,19 +49,21 @@ function Schedules() {
 
     // fetchitems();
 
+    if (state.isAuthenticated) {
+
+      httpRequest(requestConfig)
+        .then((response) => {
+          setSearchResults(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
 
   }, []);
 
-  let mockResults = [
-    { "houseNo": "1", "visitorName": "Mark", "visitorNIC": "1234", "visitorPhoneNo": "123-456-7890", "vehicleNumber": "wp-1234", "visitDate": "7/28/2023", "isApproved": true, "comment": "desc", "visitId": 1 },
-    { "houseNo": "2", "visitorName": "John", "visitorNIC": "5678", "visitorPhoneNo": "123-456-7890", "vehicleNumber": "wp-1234", "visitDate": "7/29/2023", "isApproved": true, "comment": "desc", "visitId": 2 },
-    { "houseNo": "3", "visitorName": "Mary", "visitorNIC": "1234", "visitorPhoneNo": "123-444-7890", "vehicleNumber": "wp-1234", "visitDate": "7/29/2023", "isApproved": true, "comment": "desc", "visitId": 3 },
-    { "houseNo": "4", "visitorName": "Ann", "visitorNIC": "1234", "visitorPhoneNo": "123-555-7890", "vehicleNumber": "wp-1234", "visitDate": "7/30/2023", "isApproved": true, "comment": "desc", "visitId": 4 },
-    { "houseNo": "5", "visitorName": "Bob", "visitorNIC": "1234", "visitorPhoneNo": "777-456-7890", "vehicleNumber": "wp-1234", "visitDate": "7/28/2023", "isApproved": true, "comment": "desc", "visitId": 5 }
-  ];
-
   const data = {
-    nodes: mockResults.filter((item) =>
+    nodes: searchResults.filter((item) =>
       item.visitorName.toLowerCase().includes(search.toLowerCase()) ||
       item.visitorNIC.includes(search) ||
       item.visitorPhoneNo.includes(search) ||

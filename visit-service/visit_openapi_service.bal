@@ -210,17 +210,19 @@ service /visit on httpListener {
     }
 
     resource function put actualVisits(@http:Payload ActualVisit payload) returns InternalServerErrorString|ActualVisit {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
     }
 
     resource function post actualVisits(@http:Payload NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
-
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
     }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {
-
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
     }
 
     resource function get actualVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ActualVisit[] {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
 
     }
 }

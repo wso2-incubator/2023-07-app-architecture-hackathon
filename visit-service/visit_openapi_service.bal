@@ -139,7 +139,7 @@ service /visit on httpListener {
         ScheduledVisitEntity|error scheduledVisitEntity = self.db->/scheduledvisits/[visitId];
 
         if scheduledVisitEntity is error {
-            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+            return <InternalServerErrorString>{body: "Failed to retrieve the scheduled visit"};
         }
 
         ScheduledVisit scheduledVisit = {

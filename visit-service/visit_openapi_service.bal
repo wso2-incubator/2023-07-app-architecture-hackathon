@@ -106,28 +106,23 @@ service /visit on httpListener {
     }
 
     resource function get scheduledVisits/[int visitId]() returns InternalServerErrorString|ScheduledVisit|http:Forbidden|http:NotFound {
-        ScheduledVisitEntity|persist:Error scheduledVisitEntity = self.db->/scheduledvisits/[visitId];
-        if scheduledVisitEntity is persist:NotFoundError {
+        ScheduledVisit[]|error scheduledVisits = from var visitData in self.db->/visitdata(targetType = db:VisitData)
+            where visitData.visitId == visitId
+            select createScheduleVisit(visitData.visitId, visitData.houseNo,
+                visitData.visitorName, visitData.visitorNIC,
+                visitData.visitorPhoneNo, visitData.vehicleNumber,
+                visitData.visitDate, visitData.isApproved, visitData.comment);
+
+        if scheduledVisits is error {
+            string msg = "Failed to retrieve the scheduled visit";
+            log:printError(msg, 'error = scheduledVisits);
+            return <InternalServerErrorString>{body: msg};
+        } else if scheduledVisits.length() == 0 {
             string msg = string `Scheduled visit: ${visitId} not found.`;
             log:printError(msg);
             return <http:NotFound>{body: msg};
-        } else if scheduledVisitEntity is persist:Error {
-            string msg = "Failed to retrieve the scheduled visit";
-            log:printError(msg, 'error = scheduledVisitEntity);
-            return <InternalServerErrorString>{body: msg};
         } else {
-            ScheduledVisit scheduledVisit = {
-                visitId: scheduledVisitEntity.visitData.visitId,
-                houseNo: scheduledVisitEntity.visitData.houseNo,
-                visitorName: scheduledVisitEntity.visitData.visitorName,
-                visitorNIC: scheduledVisitEntity.visitData.visitorNIC,
-                visitorPhoneNo: scheduledVisitEntity.visitData.visitorPhoneNo,
-                vehicleNumber: scheduledVisitEntity.visitData.vehicleNumber,
-                visitDate: scheduledVisitEntity.visitData.visitDate,
-                isApproved: scheduledVisitEntity.visitData.isApproved,
-                comment: scheduledVisitEntity.visitData.comment
-            };
-            return scheduledVisit;
+            return scheduledVisits[0];
         }
     }
 
@@ -339,7 +334,7 @@ service /visit on httpListener {
         };
     }
 
-    resource function post actualVisits(@http:Payload NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
+    resource function post actualVisits(NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
         int|error visitId = random:createIntInRange(0, 10000000);
         if visitId is error {
             return <InternalServerErrorString>{body: "Failed to generate visit id."};
@@ -401,29 +396,24 @@ service /visit on httpListener {
     }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden|http:NotFound {
-        ActualVisitEntity|persist:Error actualVisitEntry = self.db->/actualvisits/[visitId]();
-        if actualVisitEntry is persist:NotFoundError {
-            string msg = string `Actual visit: ${visitId} not found.`;
+        ActualVisit[]|error actualVisits = from var {visitData, inTime, outTime} in self.db->/actualvisits(targetType = ActualVisitEntity)
+            where visitData.visitId == visitId
+            select createActualVisit(visitData.visitId, visitData.houseNo,
+                visitData.visitorName, visitData.visitorNIC,
+                visitData.visitorPhoneNo, visitData.vehicleNumber,
+                visitData.visitDate, visitData.isApproved,
+                visitData.comment, inTime, outTime);
+
+        if actualVisits is error {
+            string msg = "Failed to retrieve the scheduled visit";
+            log:printError(msg, 'error = actualVisits);
+            return <InternalServerErrorString>{body: msg};
+        } else if actualVisits.length() == 0 {
+            string msg = string `Scheduled visit: ${visitId} not found.`;
             log:printError(msg);
             return <http:NotFound>{body: msg};
-        } else if actualVisitEntry is persist:Error {
-            string msg = "Failed to retrieve the actual visit";
-            log:printError(msg, 'error = actualVisitEntry);
-            return <InternalServerErrorString>{body: msg};
         } else {
-            return {
-                visitId: actualVisitEntry.visitData.visitId,
-                houseNo: actualVisitEntry.visitData.houseNo,
-                visitorName: actualVisitEntry.visitData.visitorName,
-                visitorNIC: actualVisitEntry.visitData.visitorNIC,
-                visitorPhoneNo: actualVisitEntry.visitData.visitorPhoneNo,
-                vehicleNumber: actualVisitEntry.visitData.vehicleNumber,
-                visitDate: actualVisitEntry.visitData.visitDate,
-                isApproved: actualVisitEntry.visitData.isApproved,
-                comment: actualVisitEntry.visitData.comment,
-                inTime: actualVisitEntry.inTime,
-                outTime: actualVisitEntry.outTime
-            };
+            return actualVisits[0];
         }
     }
 
@@ -562,5 +552,21 @@ function createScheduleVisit(int visitId, string houseNo, string visitorName,
     visitDate: visitDate,
     isApproved: isApproved,
     comment: comment
+};
+
+function createActualVisit(int visitId, string houseNo, string visitorName,
+        string? visitorNIC, string? visitorPhoneNo, string? vehicleNumber,
+        string visitDate, boolean isApproved, string comment, string inTime, string outTime) returns ActualVisit => {
+    visitId: visitId,
+    houseNo: houseNo,
+    visitorName: visitorName,
+    visitorNIC: visitorNIC,
+    visitorPhoneNo: visitorPhoneNo,
+    vehicleNumber: vehicleNumber,
+    visitDate: visitDate,
+    isApproved: isApproved,
+    comment: comment,
+    inTime,
+    outTime
 };
 

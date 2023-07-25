@@ -52,17 +52,10 @@ service /visit on httpListener {
         stream<ScheduledVisitEntity, error?> scheduledVisitStream = self.db->/scheduledvisits;
         ScheduledVisit[]|error visits =
             from var {visitData} in scheduledVisitStream
-        select {
-            visitId: visitData.visitId,
-            houseNo: visitData.houseNo,
-            visitorName: visitData.visitorName,
-            visitorNIC: visitData.visitorNIC,
-            visitorPhoneNo: visitData.visitorPhoneNo,
-            vehicleNumber: visitData.vehicleNumber,
-            visitDate: visitData.visitDate,
-            isApproved: visitData.isApproved,
-            comment: visitData.comment
-        };
+        select createScheduleVisit(visitData.visitId, visitData.houseNo,
+                visitData.visitorName, visitData.visitorNIC,
+                visitData.visitorPhoneNo, visitData.vehicleNumber,
+                visitData.visitDate, visitData.isApproved, visitData.comment);
 
         if visits is error {
             string msg = "Failed to retrieve scheduled visits.";
@@ -74,92 +67,68 @@ service /visit on httpListener {
     }
 
     resource function post scheduledVisits(NewScheduledVisit payload) returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
-        int|error visitId = random:createIntInRange(0, 10000000);
-        if visitId is error {
-            return <InternalServerErrorString>{body: "Failed to generate visit id."};
-        }
+        transaction {
+            // 1) Create an entry in the visit data table
+            int visitId = check random:createIntInRange(0, 10000000);
+            db:VisitDataInsert visitDataInsert = {
+                visitId: visitId,
+                houseNo: payload.houseNo,
+                visitorName: payload.visitorName,
+                visitorNIC: payload.visitorNIC,
+                visitorPhoneNo: payload.visitorPhoneNo,
+                vehicleNumber: payload.vehicleNumber,
+                visitDate: payload.visitDate,
+                isApproved: payload.isApproved,
+                comment: payload.comment
+            };
+            _ = check self.db->/visitdata.post([visitDataInsert]);
 
-        db:VisitDataInsert visitDataInsert = {
-            visitId: visitId,
-            houseNo: payload.houseNo,
-            visitorName: payload.visitorName,
-            visitorNIC: payload.visitorNIC,
-            visitorPhoneNo: payload.visitorPhoneNo,
-            vehicleNumber: payload.vehicleNumber,
-            visitDate: payload.visitDate,
-            isApproved: payload.isApproved,
-            comment: payload.comment
-        };
-        int[]|error insertedIds = self.db->/visitdata.post([visitDataInsert]);
-        if insertedIds is error {
+            // 2) Create an entry in the scheduled visit table
+            int scheduledVisitId = check random:createIntInRange(0, 10000000);
+            db:ScheduledVisitInsert scheduledVisitInsert = {
+                id: scheduledVisitId,
+                createdTime: dateNow(),
+                requestedBy: "admin",
+                scheduledvisitVisitId: visitId,
+                status: db:PENDING
+            };
+            _ = check self.db->/scheduledvisits.post([scheduledVisitInsert]);
+
+            check commit;
+            return createScheduleVisit(visitId, payload.houseNo, payload.visitorName,
+                payload.visitorNIC, payload.visitorPhoneNo, payload.vehicleNumber,
+                payload.visitDate, payload.isApproved, payload.comment);
+        } on fail error e {
             string msg = "Failed to add the scheduled vist.";
-            log:printError(msg, 'error = insertedIds);
+            log:printError(msg, 'error = e);
             return <InternalServerErrorString>{body: msg};
         }
-
-        time:Utc now = time:utcNow();
-        time:Civil civilNow = time:utcToCivil(now);
-        time:Date createdTime = {
-            year: civilNow.year,
-            month: civilNow.month,
-            day: civilNow.day,
-            hour: civilNow.hour,
-            minute: civilNow.minute,
-            second: civilNow.second
-        };
-
-        int|error scheduledVisitId = random:createIntInRange(0, 10000000);
-        if scheduledVisitId is error {
-            return <InternalServerErrorString>{body: "Failed to generate visit id."};
-        }
-
-        db:ScheduledVisitInsert scheduledVisitInsert = {
-            id: scheduledVisitId,
-            createdTime,
-            requestedBy: "admin",
-            scheduledvisitVisitId: visitId,
-            status: db:PENDING
-        };
-
-        int[]|error scheduledVisitIds = self.db->/scheduledvisits.post([scheduledVisitInsert]);
-        if scheduledVisitIds is error {
-            string msg = "Failed to add the scheduled vist.";
-            log:printError(msg, 'error = scheduledVisitIds);
-            return <InternalServerErrorString>{body: msg};
-        }
-
-        return {
-            visitId: visitDataInsert.visitId,
-            houseNo: visitDataInsert.houseNo,
-            visitorName: visitDataInsert.visitorName,
-            visitorNIC: visitDataInsert.visitorNIC,
-            visitorPhoneNo: visitDataInsert.visitorPhoneNo,
-            vehicleNumber: visitDataInsert.vehicleNumber,
-            visitDate: visitDataInsert.visitDate,
-            isApproved: visitDataInsert.isApproved,
-            comment: visitDataInsert.comment
-        };
     }
 
-    resource function get scheduledVisits/[int visitId]() returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
-        ScheduledVisitEntity|error scheduledVisitEntity = self.db->/scheduledvisits/[visitId];
-
-        if scheduledVisitEntity is error {
-            return <InternalServerErrorString>{body: "Failed to retrieve the scheduled visit"};
+    resource function get scheduledVisits/[int visitId]() returns InternalServerErrorString|ScheduledVisit|http:Forbidden|http:NotFound {
+        ScheduledVisitEntity|persist:Error scheduledVisitEntity = self.db->/scheduledvisits/[visitId];
+        if scheduledVisitEntity is persist:NotFoundError {
+            string msg = string `Scheduled visit: ${visitId} not found.`;
+            log:printError(msg);
+            return <http:NotFound>{body: msg};
+        } else if scheduledVisitEntity is persist:Error {
+            string msg = "Failed to retrieve the scheduled visit";
+            log:printError(msg, 'error = scheduledVisitEntity);
+            return <InternalServerErrorString>{body: msg};
+        } else {
+            ScheduledVisit scheduledVisit = {
+                visitId: scheduledVisitEntity.visitData.visitId,
+                houseNo: scheduledVisitEntity.visitData.houseNo,
+                visitorName: scheduledVisitEntity.visitData.visitorName,
+                visitorNIC: scheduledVisitEntity.visitData.visitorNIC,
+                visitorPhoneNo: scheduledVisitEntity.visitData.visitorPhoneNo,
+                vehicleNumber: scheduledVisitEntity.visitData.vehicleNumber,
+                visitDate: scheduledVisitEntity.visitData.visitDate,
+                isApproved: scheduledVisitEntity.visitData.isApproved,
+                comment: scheduledVisitEntity.visitData.comment
+            };
+            return scheduledVisit;
         }
-
-        ScheduledVisit scheduledVisit = {
-            visitId: scheduledVisitEntity.visitData.visitId,
-            houseNo: scheduledVisitEntity.visitData.houseNo,
-            visitorName: scheduledVisitEntity.visitData.visitorName,
-            visitorNIC: scheduledVisitEntity.visitData.visitorNIC,
-            visitorPhoneNo: scheduledVisitEntity.visitData.visitorPhoneNo,
-            vehicleNumber: scheduledVisitEntity.visitData.vehicleNumber,
-            visitDate: scheduledVisitEntity.visitData.visitDate,
-            isApproved: scheduledVisitEntity.visitData.isApproved,
-            comment: scheduledVisitEntity.visitData.comment
-        };
-        return scheduledVisit;
     }
 
     resource function put scheduledVisits/[int visitId](ScheduledVisit payload) returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
@@ -394,17 +363,6 @@ service /visit on httpListener {
             return <InternalServerErrorString>{body: msg};
         }
 
-        time:Utc now = time:utcNow();
-        time:Civil civilNow = time:utcToCivil(now);
-        time:Date createdTime = {
-            year: civilNow.year,
-            month: civilNow.month,
-            day: civilNow.day,
-            hour: civilNow.hour,
-            minute: civilNow.minute,
-            second: civilNow.second
-        };
-
         int|error actualVisitId = random:createIntInRange(0, 10000000);
         if actualVisitId is error {
             return <InternalServerErrorString>{body: "Failed to generate actual visit id."};
@@ -412,7 +370,7 @@ service /visit on httpListener {
 
         db:ActualVisitInsert actualVisitInsert = {
             id: actualVisitId,
-            createdTime,
+            createdTime: dateNow(),
             actualvisitVisitId: visitId,
             // status: db:PENDING,
             inTime: payload.inTime,
@@ -472,4 +430,31 @@ service /visit on httpListener {
 
     }
 }
+
+function dateNow() returns time:Date {
+    time:Utc now = time:utcNow();
+    time:Civil civilNow = time:utcToCivil(now);
+    return {
+        year: civilNow.year,
+        month: civilNow.month,
+        day: civilNow.day,
+        hour: civilNow.hour,
+        minute: civilNow.minute,
+        second: civilNow.second
+    };
+}
+
+function createScheduleVisit(int visitId, string houseNo, string visitorName,
+        string? visitorNIC, string? visitorPhoneNo, string? vehicleNumber,
+        string visitDate, boolean isApproved, string comment) returns ScheduledVisit => {
+    visitId: visitId,
+    houseNo: houseNo,
+    visitorName: visitorName,
+    visitorNIC: visitorNIC,
+    visitorPhoneNo: visitorPhoneNo,
+    vehicleNumber: vehicleNumber,
+    visitDate: visitDate,
+    isApproved: isApproved,
+    comment: comment
+};
 

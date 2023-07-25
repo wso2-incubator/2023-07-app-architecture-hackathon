@@ -16,10 +16,11 @@ const authConfig = {
     "clientID": "kMMz9FOPufwyYOCw6GKWltS8XuMa",
     "scope": [
         "openid",
-        "profile"
+        "profile",
+        "houseno"
     ],
-    "signInRedirectURL": "https://" + window.location.host + "/login",
-    "signOutRedirectURL": "https://" + window.location.host + "/login",
+    "signInRedirectURL": "https://" + window.location.host,
+    "signOutRedirectURL": "https://" + window.location.host,
 }
 
 function App() {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Input} from 'semantic-ui-react';
 import { useAuthContext } from "@asgardeo/auth-react";
 import UnderConstructionMessage from './UnderConstructionMessage';
-
+import SecurityStaffWelcome from './SecurityStaffWelcome';
 function Schedules() {
 
   const [items, setitems] = useState([]);
@@ -24,6 +24,8 @@ function Schedules() {
     attachToken: isAttachToken,
     withCredentials: isWithCredentials
   };
+
+  
 
   useEffect(() => {
     // call API
@@ -48,19 +50,27 @@ function Schedules() {
     setSearchTerm(event.target.value);
   };
 
+  if(state.isAuthenticated) {
+    return (
+      <Container>
+        <Input
+          type="text"
+          placeholder="Search by schedule Id"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          fluid
+        />
+        {/* TODO change logic based on the logged in status */}
+           <UnderConstructionMessage/>
+      </Container>
+    );
+  } else {
   return (
     <Container>
-      <Input
-        type="text"
-        placeholder="Search by schedule Id"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        fluid
-      />
-      {/* TODO change logic based on the logged in status */}
-     <UnderConstructionMessage/>
+         <SecurityStaffWelcome/>
     </Container>
   );
+  }
 }
 
 export default Schedules;

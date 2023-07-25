@@ -34,10 +34,12 @@ public class OwnerApplication {
 		return owners;
 	}
 
-	@GetMapping("/owners/search?query")
-	public List<Owner> searchOwners(@RequestParam String query) {
+	@GetMapping("/owners/search")
+	public List<Owner> searchOwners(@RequestParam(value = "searchField", required = true) String searchField,
+									@RequestParam(value = "value", required = true) String value) {
 
-		System.out.println("Query : " + query);
+		System.out.println("Search Field : " + searchField);
+		System.out.println("Value : " + value);
 		Owner owner1 = new Owner();
 		owner1.setName("Nuwan Dias");
 		owner1.setEmail("nuwan@gmail.com");

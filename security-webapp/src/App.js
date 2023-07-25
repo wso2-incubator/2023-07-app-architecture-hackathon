@@ -65,7 +65,7 @@ const App = () => {
           <Container>
             <Menu.Item as="a" header href="/" >
               <div>
-                <h3 style={{ margin: 0 }}>Serenity Meadows</h3>
+                <h3 style={{ margin: 0 }}>Lotus Groove</h3>
                 <p style={{ margin: 0 }}>Security Gate Management System</p>
               </div>
             </Menu.Item>
@@ -79,7 +79,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    document.title = 'Happy Homes';
+    document.title = 'LotusGroove';
   }, []);
   return (
     <>

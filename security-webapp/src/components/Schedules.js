@@ -70,7 +70,7 @@ function Schedules() {
 
   const data = {
     nodes: searchResults.filter((item) =>      
-      (item?.visitorName?.toLowerCase().includes(search.toLowerCase())) 
+      item.visitorName.toLowerCase().includes(search.toLowerCase())
     ),
   };
 
@@ -100,7 +100,7 @@ function Schedules() {
            </Header>
            <Body>
              {tableList.map((item) => (
-               <Row key={item.houseNo}>
+               <Row key={item.visitId}>
                  <Cell data-label="houseNo">{item.houseNo}</Cell>
                  <Cell data-label="visitorName">{item.visitorName}</Cell>
                  <Cell data-label="visitorNIC">{item.visitorNIC}</Cell>

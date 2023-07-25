@@ -5,6 +5,7 @@ import { AuthProvider, useAuthContext } from "@asgardeo/auth-react";
 import { TokenExchangePlugin } from "@asgardeo/token-exchange-plugin";
 import Layout from "./pages/Layout";
 import Dashboard from "./pages/Dashboard";
+import ScheduleFormPage from "./pages/ScheduleFormPage";
 
 import NoPage from "./pages/NoPage";
 import Login from './pages/Login';
@@ -29,6 +30,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/" element={<Layout />}>
                         <Route index element={<Dashboard />} />
+                        <Route path="/schedule" element={<ScheduleFormPage />} />
                         <Route path="*" element={<NoPage />} />
                     </Route>
                 </Routes>

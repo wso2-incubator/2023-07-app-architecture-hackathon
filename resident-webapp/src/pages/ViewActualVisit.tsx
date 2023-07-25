@@ -7,24 +7,10 @@ import VisitDetailCard from '../components/schedules/VisitDetailCard';
 
 const ViewActualVisit = () => {
     let { id } = useParams();
-
-    const example = {
-        "inTime": "string",
-        "outTime": "string",
-        "houseNo": "string",
-        "visitorName": "string",
-        "visitorNIC": "string",
-        "visitorPhoneNo": "string",
-        "vehicleNumber": "string",
-        "visitDate": "string",
-        "isApproved": true,
-        "comment": "string",
-        "visitId": "0"
-    };
-
+    let idString: string = id ? id.toString() : '';
     return (
         <div>
-            <VisitDetailCard visit={example} />
+            <VisitDetailCard visitId={idString} />
         </div>
     );
 };

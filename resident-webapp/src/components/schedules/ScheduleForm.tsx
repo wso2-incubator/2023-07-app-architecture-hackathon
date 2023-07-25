@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 import { API } from '../../api';
 import { Box, Typography } from '@mui/material';
@@ -14,11 +13,14 @@ import { ScheduleVisit } from "../../types/domain";
 import { useNavigate } from 'react-router-dom';
 import { AxiosResponse } from 'axios';
 import { useAuthContext } from "@asgardeo/auth-react";
-import DatePicker from '@mui/lab/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 export default function ScheduleForm() {
     const navigate = useNavigate();
     const { getAccessToken } = useAuthContext();
+    const { getDecodedIDToken } = useAuthContext();
     const [values, setValues] = useState({
         houseNo: "",
         visitorName: "",
@@ -72,6 +74,13 @@ export default function ScheduleForm() {
         console.log(values);
     };
 
+    useEffect(() => {
+        getDecodedIDToken().then((decodedIDToken) => {
+            setValues({ ...values, houseNo: decodedIDToken.house_no });
+        })
+            .catch(err => console.error(err))
+    }, []);
+
     return (
         <Box>
             <Typography variant="h4" component="div" gutterBottom>
@@ -85,7 +94,6 @@ export default function ScheduleForm() {
                     <TextField name="visitorPhoneNo" label="Visitor Phone Number" value={values.visitorPhoneNo} onChange={handleChange} />
                     <TextField name="vehicleNumber" label="Vehicle Number" value={values.vehicleNumber} onChange={handleChange} />
                     <TextField name="visitDate" label="Visit Date" value={values.visitDate} onChange={handleChange} />
-                    <DatePicker label="Uncontrolled picker" />
                     <TextField name="comment" label="Comment" value={values.comment} onChange={handleChange} />
                 </Stack>
                 <br />

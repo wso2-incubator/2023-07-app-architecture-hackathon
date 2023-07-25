@@ -10,12 +10,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <AuthProvider
       config={{
-        signInRedirectURL: process.env.REACT_APP_SIGN_IN_REDIRECT_URL,
-        signOutRedirectURL: process.env.REACT_APP_SIGN_OUT_REDIRECT_URL,
-        clientID: process.env.REACT_APP_CLIENT_ID,
-        baseUrl: process.env.REACT_APP_BASE_URL,
-        scope: process.env.REACT_APP_SCOPE.split(' '),
-        resourceServerURLs: [process.env.REACT_APP_RESOURCE_SERVER_URL],
+        signInRedirectURL: window.config.signInRedirectURL,
+        signOutRedirectURL: window.config.signOutRedirectURL,
+        clientID: window.config.clientId,
+        baseUrl: window.config.asgardeoBaseURL,
+        scope: window.config.appScopes.split(' '),
+        resourceServerURLs: [window.config.resourceServerURL],
       }}
     > 
      <App />

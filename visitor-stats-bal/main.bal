@@ -1,11 +1,16 @@
 import ballerina/io;
 import ballerinax/googleapis.sheets as sheets;
+import ballerina/http;
 
 configurable string refreshToken = ?;
 configurable string clientId = ?;
 configurable string clientSecret = ?;
 configurable string spreadsheetId = ?;
 configurable string sheetName = ?;
+configurable string visitStatAPIUrl = ?;
+configurable string visitStatAPITokenURL = ?;
+configurable string visitStatAPIConsumerKey = ?;
+configurable string visitStatAPIConsumerSecret = ?;
 
 // Configuring Google Sheets API
 sheets:ConnectionConfig spreadsheetConfig = {
@@ -56,19 +61,27 @@ public function insertDetails(Details details) returns error? {
 }
 
 public function main() {
-    Details details = {
-        date: "2023-07-25",
-        inTime: "15:00",
-        outTime: "16:00",
-        houseNumber: "16B",
-        visitorName: "Nandika",
-        visitorNic: "123456789V",
-        vehicleNumber: "WP-1234",
-        visitorPhone: "0712345678",
-        comment: "VIP"
-    };
 
-    error? a = insertDetails(details);
+    http:Client|error visitClient = new (visitStatAPIUrl,
+        auth = {
+            tokenUrl: visitStatAPITokenURL,
+            clientId: visitStatAPIConsumerKey,
+            clientSecret: visitStatAPIConsumerSecret
+        }
+    );
+    if visitClient is error {
+        io:println("Error while initializing the client.");
+        return;
+    }
+
+    Details[]|error detailsResponse = visitClient->/actualVisits;
+    if detailsResponse is error {
+        io:println("Error while getting the response.");
+        return;
+    }
+    foreach Details detail in detailsResponse {
+       error? insertDetailResponse = insertDetails(detail);
+    }
 
     io:println("Hello, World!");
 }

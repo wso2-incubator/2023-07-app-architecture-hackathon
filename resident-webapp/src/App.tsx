@@ -13,11 +13,12 @@ import ViewActualVisit from './pages/ViewActualVisit';
 
 const authConfig = {
     "baseUrl": "https://api.asgardeo.io/t/architecturemindmeld",
-    "clientID": "kMMz9FOPufwyYOCw6GKWltS8XuMa",
+    "clientID": "nzsVQ5DJMfS8530VnrhJufYXTJMa",
     "scope": [
         "openid",
         "profile",
-        "houseno"
+        "houseno",
+        "urn:architecturemindmeld:visitservicevisit420:resident"
     ],
     "signInRedirectURL": "https://" + window.location.host,
     "signOutRedirectURL": "https://" + window.location.host

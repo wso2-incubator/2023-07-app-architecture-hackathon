@@ -14,7 +14,7 @@ CREATE TABLE `VisitData` (
 	`visitorNIC` VARCHAR(191),
 	`visitorPhoneNo` VARCHAR(191),
 	`vehicleNumber` VARCHAR(191),
-	`visitDate` DATE NOT NULL,
+	`visitDate` VARCHAR(191) NOT NULL,
 	`isApproved` BOOLEAN NOT NULL,
 	`comment` VARCHAR(191) NOT NULL,
 	PRIMARY KEY(`visitId`)
@@ -24,6 +24,7 @@ CREATE TABLE `ScheduledVisit` (
 	`id` INT NOT NULL,
 	`requestedBy` VARCHAR(191) NOT NULL,
 	`createdTime` DATE NOT NULL,
+	`status` ENUM('PENDING', 'DONE', 'CANCELLED') NOT NULL,
 	`scheduledvisitVisitId` INT UNIQUE NOT NULL,
 	FOREIGN KEY(`scheduledvisitVisitId`) REFERENCES `VisitData`(`visitId`),
 	PRIMARY KEY(`id`)
@@ -31,8 +32,8 @@ CREATE TABLE `ScheduledVisit` (
 
 CREATE TABLE `ActualVisit` (
 	`id` INT NOT NULL,
-	`inTime` DATE NOT NULL,
-	`outTime` DATE NOT NULL,
+	`inTime` VARCHAR(191) NOT NULL,
+	`outTime` VARCHAR(191) NOT NULL,
 	`createdBy` VARCHAR(191) NOT NULL,
 	`createdTime` DATE NOT NULL,
 	`actualvisitVisitId` INT UNIQUE NOT NULL,

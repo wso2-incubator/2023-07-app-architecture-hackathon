@@ -5,6 +5,12 @@
 
 import ballerina/time;
 
+public enum Status {
+    PENDING,
+    DONE,
+    CANCELLED
+}
+
 public type VisitData record {|
     readonly int visitId;
     string houseNo;
@@ -12,7 +18,7 @@ public type VisitData record {|
     string? visitorNIC;
     string? visitorPhoneNo;
     string? vehicleNumber;
-    time:Date visitDate;
+    string visitDate;
     boolean isApproved;
     string comment;
 |};
@@ -24,7 +30,7 @@ public type VisitDataOptionalized record {|
     string? visitorNIC?;
     string? visitorPhoneNo?;
     string? vehicleNumber?;
-    time:Date visitDate?;
+    string visitDate?;
     boolean isApproved?;
     string comment?;
 |};
@@ -45,7 +51,7 @@ public type VisitDataUpdate record {|
     string? visitorNIC?;
     string? visitorPhoneNo?;
     string? vehicleNumber?;
-    time:Date visitDate?;
+    string visitDate?;
     boolean isApproved?;
     string comment?;
 |};
@@ -55,6 +61,7 @@ public type ScheduledVisit record {|
     int scheduledvisitVisitId;
     string requestedBy;
     time:Date createdTime;
+    Status status;
 |};
 
 public type ScheduledVisitOptionalized record {|
@@ -62,6 +69,7 @@ public type ScheduledVisitOptionalized record {|
     int scheduledvisitVisitId?;
     string requestedBy?;
     time:Date createdTime?;
+    Status status?;
 |};
 
 public type ScheduledVisitWithRelations record {|
@@ -77,13 +85,14 @@ public type ScheduledVisitUpdate record {|
     int scheduledvisitVisitId?;
     string requestedBy?;
     time:Date createdTime?;
+    Status status?;
 |};
 
 public type ActualVisit record {|
     readonly int id;
     int actualvisitVisitId;
-    time:Date inTime;
-    time:Date outTime;
+    string inTime;
+    string outTime;
     string createdBy;
     time:Date createdTime;
 |};
@@ -91,8 +100,8 @@ public type ActualVisit record {|
 public type ActualVisitOptionalized record {|
     int id?;
     int actualvisitVisitId?;
-    time:Date inTime?;
-    time:Date outTime?;
+    string inTime?;
+    string outTime?;
     string createdBy?;
     time:Date createdTime?;
 |};
@@ -108,8 +117,8 @@ public type ActualVisitInsert ActualVisit;
 
 public type ActualVisitUpdate record {|
     int actualvisitVisitId?;
-    time:Date inTime?;
-    time:Date outTime?;
+    string inTime?;
+    string outTime?;
     string createdBy?;
     time:Date createdTime?;
 |};

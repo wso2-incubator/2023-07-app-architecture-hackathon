@@ -23,8 +23,8 @@ export function setAccessToken(token: string) {
 
 
 export const API = axios.create({
-    //baseURL: 'https://ca90bad8-a13d-4960-826d-694284830e39-dev.e1-us-east-azure.choreoapis.dev/pzan/shipping/1.0.0',
-    baseURL: 'https://ca90bad8-a13d-4960-826d-694284830e39-prod.e1-us-east-azure.choreoapis.dev/pzan/shipping/1.0.0'
+    //baseURL: 'https://ca90bad8-a13d-4960-826d-694284830e39-prod.e1-us-east-azure.choreoapis.dev/pzan/shipping/1.0.0'
+    baseURL: 'https://run.mocky.io/v3/ed285f2c-1ce9-47ce-aaef-350e972131f0/test'
 });
 
 // API.interceptors.request.use(async (config) => {

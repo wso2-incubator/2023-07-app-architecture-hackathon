@@ -20,7 +20,7 @@ const authConfig = {
         "houseno"
     ],
     "signInRedirectURL": "https://" + window.location.host,
-    "signOutRedirectURL": "https://" + window.location.host,
+    "signOutRedirectURL": "https://" + window.location.host
 }
 
 function App() {

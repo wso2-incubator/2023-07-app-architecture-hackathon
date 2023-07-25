@@ -24,7 +24,6 @@ const ViewActualVisit = () => {
 
     return (
         <div>
-            View actual visit {id}
             <VisitDetailCard visit={example} />
         </div>
     );

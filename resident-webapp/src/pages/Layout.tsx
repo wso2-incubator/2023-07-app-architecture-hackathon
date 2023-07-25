@@ -94,7 +94,7 @@ const Layout = () => {
     const { state, signIn, signOut } = useAuthContext();
 
     if (!state.isAuthenticated) {
-        return <Navigate to="/login" />;
+        //return <Navigate to="/login" />;
     }
 
     const toggleDrawer = () => {

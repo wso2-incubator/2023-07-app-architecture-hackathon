@@ -42,9 +42,9 @@ export default function Menu() {
   return (
     <>
       <List>
-        <ListItemLink to="/" primary="Dashboard" icon={<DashboardIcon />} />
-        <ListItemLink to="/orders" primary="Orders" icon={<SendIcon />} />
+        <ListItemLink to="/" primary="Visits" icon={<DashboardIcon />} />
+        <ListItemLink to="/schedule" primary="Schedule" icon={<SendIcon />} />
       </List>
     </>
   );
-}
+} 

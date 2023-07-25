@@ -136,6 +136,24 @@ service /visit on httpListener {
     }
 
     resource function get scheduledVisits/[int visitId]() returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
+        ScheduledVisitEntity|error scheduledVisitEntity = self.db->/scheduledvisits/[visitId];
+
+        if scheduledVisitEntity is error {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        }
+
+        ScheduledVisit scheduledVisit = {
+            visitId: scheduledVisitEntity.visitData.visitId,
+            houseNo: scheduledVisitEntity.visitData.houseNo,
+            visitorName: scheduledVisitEntity.visitData.visitorName,
+            visitorNIC: scheduledVisitEntity.visitData.visitorNIC,
+            visitorPhoneNo: scheduledVisitEntity.visitData.visitorPhoneNo,
+            vehicleNumber: scheduledVisitEntity.visitData.vehicleNumber,
+            visitDate: scheduledVisitEntity.visitData.visitDate,
+            isApproved: scheduledVisitEntity.visitData.isApproved,
+            comment: scheduledVisitEntity.visitData.comment
+        };
+        return scheduledVisit;
     }
 
     resource function put scheduledVisits/[int visitId](ScheduledVisit payload) returns InternalServerErrorString|ScheduledVisit|http:Forbidden {

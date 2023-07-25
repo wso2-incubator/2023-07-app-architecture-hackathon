@@ -160,6 +160,27 @@ service /visit on httpListener {
     }
 
     resource function get scheduledVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ScheduledVisit[] {
+        stream<ScheduledVisitEntity, error?> scheduledVisitStream = self.db->/scheduledvisits();
+        ScheduledVisit[]|error visits =
+            from var {visitData} in scheduledVisitStream
+                where visitData.houseNo == value
+                select {
+                    visitId: visitData.visitId,
+                    houseNo: visitData.houseNo,
+                    visitorName: visitData.visitorName,
+                    visitorNIC: visitData.visitorNIC,
+                    visitorPhoneNo: visitData.visitorPhoneNo,
+                    vehicleNumber: visitData.vehicleNumber,
+                    visitDate: visitData.visitDate,
+                    isApproved: visitData.isApproved,
+                    comment: visitData.comment
+                };
+
+        if visits is error {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        } else {
+            return visits;
+        }
     }
 
     resource function get actualVisits() returns InternalServerErrorString|ActualVisit[] {

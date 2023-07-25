@@ -1,6 +1,7 @@
 import ballerina/io;
 import ballerinax/googleapis.sheets as sheets;
 import ballerina/http;
+import ballerina/time;
 
 configurable string refreshToken = ?;
 configurable string clientId = ?;
@@ -82,12 +83,29 @@ public function main() {
         return;
     }
     foreach VisitSvcResponse visit in visitResponse {
-       error? insertDetailResponse = insertVisit(visit);
-       if (insertDetailResponse is error) {
-           io:println("Error while inserting the data.", insertDetailResponse);
-           return;
-       }
+        time:Utc|error visitDate = time:utcFromString(visit.visitDate);
+        if visitDate is error {
+            io:println("Date is not in the expected format", visitResponse);
+        } else {
+            time:Utc currentTime = time:utcNow();
+            time:Utc startTime = utcSubtractSeconds(currentTime, 60 * 60);
+            if (visitDate < startTime) {
+                continue;
+            }
+        }
+        
+        error? insertDetailResponse = insertVisit(visit);
+        if (insertDetailResponse is error) {
+            io:println("Error while inserting the data.", insertDetailResponse);
+            return;
+        }
     }
 
     io:println("Successfully inserted the data.");
+}
+
+function utcSubtractSeconds(time:Utc utc, int seconds) returns time:Utc {
+    [int, decimal] [secondsFromEpoch, lastSecondFraction] = utc;
+    secondsFromEpoch = secondsFromEpoch - seconds;
+    return [secondsFromEpoch, lastSecondFraction];
 }

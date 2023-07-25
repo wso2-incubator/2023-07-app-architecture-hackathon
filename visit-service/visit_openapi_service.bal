@@ -145,7 +145,7 @@ service /visit on httpListener {
         ScheduledVisitEntity|error scheduledVisitEntity = self.db->/scheduledvisits/[visitId];
 
         if scheduledVisitEntity is error {
-            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+            return <InternalServerErrorString>{body: "Failed to retrieve the scheduled visit"};
         }
 
         ScheduledVisit scheduledVisit = {
@@ -195,20 +195,88 @@ service /visit on httpListener {
 
     resource function get scheduledVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ScheduledVisit[] {
         stream<ScheduledVisitEntity, error?> scheduledVisitStream = self.db->/scheduledvisits();
-        ScheduledVisit[]|error visits =
-            from var {visitData} in scheduledVisitStream
-        where visitData.houseNo == value
-        select {
-            visitId: visitData.visitId,
-            houseNo: visitData.houseNo,
-            visitorName: visitData.visitorName,
-            visitorNIC: visitData.visitorNIC,
-            visitorPhoneNo: visitData.visitorPhoneNo,
-            vehicleNumber: visitData.vehicleNumber,
-            visitDate: visitData.visitDate,
-            isApproved: visitData.isApproved,
-            comment: visitData.comment
-        };
+        ScheduledVisit[]|error visits;
+
+        match searchField {
+            "HOUSE_NO" => {
+                visits = from var {visitData} in scheduledVisitStream
+                    where visitData.houseNo == value
+                    select {
+                        visitId: visitData.visitId,
+                        houseNo: visitData.houseNo,
+                        visitorName: visitData.visitorName,
+                        visitorNIC: visitData.visitorNIC,
+                        visitorPhoneNo: visitData.visitorPhoneNo,
+                        vehicleNumber: visitData.vehicleNumber,
+                        visitDate: visitData.visitDate,
+                        isApproved: visitData.isApproved,
+                        comment: visitData.comment
+                    };
+            }
+            "VISITOR_NAME" => {
+                visits = from var {visitData} in scheduledVisitStream
+                    where visitData.visitorName == value
+                    select {
+                        visitId: visitData.visitId,
+                        houseNo: visitData.houseNo,
+                        visitorName: visitData.visitorName,
+                        visitorNIC: visitData.visitorNIC,
+                        visitorPhoneNo: visitData.visitorPhoneNo,
+                        vehicleNumber: visitData.vehicleNumber,
+                        visitDate: visitData.visitDate,
+                        isApproved: visitData.isApproved,
+                        comment: visitData.comment
+                    };
+            }
+            "VISITOR_NIC" => {
+                visits = from var {visitData} in scheduledVisitStream
+                    where visitData.visitorNIC == value
+                    select {
+                        visitId: visitData.visitId,
+                        houseNo: visitData.houseNo,
+                        visitorName: visitData.visitorName,
+                        visitorNIC: visitData.visitorNIC,
+                        visitorPhoneNo: visitData.visitorPhoneNo,
+                        vehicleNumber: visitData.vehicleNumber,
+                        visitDate: visitData.visitDate,
+                        isApproved: visitData.isApproved,
+                        comment: visitData.comment
+                    };
+            }
+            "VISITOR_PHONE_NO" => {
+                visits = from var {visitData} in scheduledVisitStream
+                    where visitData.visitorPhoneNo == value
+                    select {
+                        visitId: visitData.visitId,
+                        houseNo: visitData.houseNo,
+                        visitorName: visitData.visitorName,
+                        visitorNIC: visitData.visitorNIC,
+                        visitorPhoneNo: visitData.visitorPhoneNo,
+                        vehicleNumber: visitData.vehicleNumber,
+                        visitDate: visitData.visitDate,
+                        isApproved: visitData.isApproved,
+                        comment: visitData.comment
+                    };
+            }
+            "VEHICLE_NUMBER" => {
+                visits = from var {visitData} in scheduledVisitStream
+                    where visitData.vehicleNumber == value
+                    select {
+                        visitId: visitData.visitId,
+                        houseNo: visitData.houseNo,
+                        visitorName: visitData.visitorName,
+                        visitorNIC: visitData.visitorNIC,
+                        visitorPhoneNo: visitData.visitorPhoneNo,
+                        vehicleNumber: visitData.vehicleNumber,
+                        visitDate: visitData.visitDate,
+                        isApproved: visitData.isApproved,
+                        comment: visitData.comment
+                    };
+            }
+            _ => {
+                visits = error("Invalid search field.");
+            }
+        }
 
         if visits is error {
             return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
@@ -302,14 +370,105 @@ service /visit on httpListener {
         };
     }
 
-    resource function post actualVisits(NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
+    resource function post actualVisits(@http:Payload NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
+        int|error visitId = random:createIntInRange(0, 10000000);
+        if visitId is error {
+            return <InternalServerErrorString>{body: "Failed to generate visit id."};
+        }
+
+        db:VisitDataInsert visitDataInsert = {
+            visitId: visitId,
+            houseNo: payload.houseNo,
+            visitorName: payload.visitorName,
+            visitorNIC: payload.visitorNIC,
+            visitorPhoneNo: payload.visitorPhoneNo,
+            vehicleNumber: payload.vehicleNumber,
+            visitDate: payload.visitDate,
+            isApproved: payload.isApproved,
+            comment: payload.comment
+        };
+        int[]|error insertedIds = self.db->/visitdata.post([visitDataInsert]);
+        if insertedIds is error {
+            string msg = "Failed to add the scheduled vist.";
+            log:printError(msg, 'error = insertedIds);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+        time:Utc now = time:utcNow();
+        time:Civil civilNow = time:utcToCivil(now);
+        time:Date createdTime = {
+            year: civilNow.year,
+            month: civilNow.month,
+            day: civilNow.day,
+            hour: civilNow.hour,
+            minute: civilNow.minute,
+            second: civilNow.second
+        };
+
+        int|error actualVisitId = random:createIntInRange(0, 10000000);
+        if actualVisitId is error {
+            return <InternalServerErrorString>{body: "Failed to generate actual visit id."};
+        }
+
+        db:ActualVisitInsert actualVisitInsert = {
+            id: actualVisitId,
+            createdTime,
+            actualvisitVisitId: visitId,
+            // status: db:PENDING,
+            inTime: payload.inTime,
+            createdBy: "user",
+            outTime: payload.outTime
+        };
+
+        int[]|error actualVisitIds = self.db->/actualvisits.post([actualVisitInsert]);
+        if actualVisitIds is error {
+            string msg = "Failed to add the actual vist.";
+            log:printError(msg, 'error = actualVisitIds);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+        return {
+            visitId: visitDataInsert.visitId,
+            houseNo: visitDataInsert.houseNo,
+            visitorName: visitDataInsert.visitorName,
+            visitorNIC: visitDataInsert.visitorNIC,
+            visitorPhoneNo: visitDataInsert.visitorPhoneNo,
+            vehicleNumber: visitDataInsert.vehicleNumber,
+            visitDate: visitDataInsert.visitDate,
+            isApproved: visitDataInsert.isApproved,
+            comment: visitDataInsert.comment,
+            inTime: actualVisitInsert.inTime,
+            outTime: actualVisitInsert.outTime
+        };
     }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {
 
+        ActualVisitEntity|error actualVisitEntry = self.db->/actualvisits/[visitId]();
+
+        if actualVisitEntry is error {
+            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        }
+
+        ActualVisit actualVisit = {
+            visitId: actualVisitEntry.visitData.visitId,
+            houseNo: actualVisitEntry.visitData.houseNo,
+            visitorName: actualVisitEntry.visitData.visitorName,
+            visitorNIC: actualVisitEntry.visitData.visitorNIC,
+            visitorPhoneNo: actualVisitEntry.visitData.visitorPhoneNo,
+            vehicleNumber: actualVisitEntry.visitData.vehicleNumber,
+            visitDate: actualVisitEntry.visitData.visitDate,
+            isApproved: actualVisitEntry.visitData.isApproved,
+            comment: actualVisitEntry.visitData.comment,
+            inTime: actualVisitEntry.inTime,
+            outTime: actualVisitEntry.outTime
+        };
+
+        return actualVisit;
     }
 
     resource function get actualVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ActualVisit[] {
+        return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
 
     }
 }

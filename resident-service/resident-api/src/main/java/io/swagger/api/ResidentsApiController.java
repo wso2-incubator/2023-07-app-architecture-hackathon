@@ -3,6 +3,7 @@ package io.swagger.api;
 import io.swagger.model.Resident;
 import io.swagger.model.SearchField;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.repo.ResidentRepo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -14,10 +15,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -27,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-07-25T04:20:14.086140772Z[GMT]")
 @RestController
@@ -37,6 +41,13 @@ public class ResidentsApiController implements ResidentsApi {
     private final ObjectMapper objectMapper;
 
     private final HttpServletRequest request;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private ResidentRepo residentRepo;
+
 
     @org.springframework.beans.factory.annotation.Autowired
     public ResidentsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
@@ -49,14 +60,17 @@ public class ResidentsApiController implements ResidentsApi {
             method = RequestMethod.GET)
     public ResponseEntity<List<Resident>> getResidents() throws IOException {
 
-        List<Resident> residents = new ArrayList<>();
-        Resident resident = new Resident();
-        resident.setEmail("s");
-        resident.setName("a");
-        resident.setNic("1221");
-        residents.add(resident);
-        return new ResponseEntity<List<Resident>>(residents, HttpStatus.OK);
+//        String sql = "SELECT * FROM Residents";
+//        jdbcTemplate.query(sql);
 
+//
+//        List<Resident> residents = new ArrayList<>();
+//        Resident resident = new Resident();
+//        resident.setEmail("s");
+//        resident.setName("a");
+//        resident.setNic("1221");
+//        residents.add(resident);
+////        return new ResponseEntity<List<Resident>>(residents, HttpStatus.OK);
 //
 //        String accept = request.getHeader("Accept");
 //        if (accept != null && accept.contains("application/json")) {
@@ -69,21 +83,28 @@ public class ResidentsApiController implements ResidentsApi {
 //        }
 //
 //        return new ResponseEntity<List<Resident>>(HttpStatus.NOT_IMPLEMENTED);
+
+        List<Resident> residentsFromDB = residentRepo.findAll();
+        return new ResponseEntity<List<Resident>>(residentsFromDB, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/residents/search",
             produces = { "application/json", "text/plain" },
             method = RequestMethod.GET)
 //    public ResponseEntity<List<Resident>> getResidentsSearch(@Valid @RequestParam(value = "searchField", required = true) String searchField) {
-    public ResponseEntity<List<Resident>> getResidentsSearch(@NotNull @Valid @RequestParam(value = "searchField", required = true) String searchField,@NotNull @Valid @RequestParam(value = "value", required = true) String value) {
-        List<Resident> residents = new ArrayList<>();
-        Resident resident = new Resident();
-        resident.setEmail("search@gmail.com");
-        resident.setName("a");
-        resident.setNic("12211232");
-        residents.add(resident);
-        return new ResponseEntity<List<Resident>>(residents, HttpStatus.OK);
-
+    public ResponseEntity<List<Resident>> getResidentsSearch(@NotNull @Valid @RequestParam(value = "searchField", required = true) String searchField,@NotNull @Valid @RequestParam(value = "value", required = true) final String value) {
+        List<Resident> residentsFromDB = residentRepo.findAll();
+        List<Resident> searchResult = new ArrayList<>();
+        if (SearchField.NAME.toString().equals(searchField)) {
+            searchResult = residentsFromDB.stream().filter(r -> r.getName().contains(value)).collect(Collectors.toList());
+        }
+        return new ResponseEntity<List<Resident>>(searchResult, HttpStatus.OK);
+//        List<Resident> residents = new ArrayList<>();
+//        Resident resident = new Resident();
+//        resident.setEmail("search@gmail.com");
+//        resident.setName("a");
+//        resident.setNic("12211232");
+//        residents.add(resident);
 //        String accept = request.getHeader("Accept");
 //        if (accept != null && accept.contains("application/json")) {
 //            try {

@@ -24,6 +24,7 @@ import Chart from '../components/dashboard/Chart';
 import Deposits from '../components/dashboard/Deposits';
 import UserMenu from '../components/UserMenu';
 import { CircularProgress } from '@mui/material';
+import Login from './Login';
 
 function Copyright(props: any) {
     return (
@@ -93,6 +94,10 @@ const mdTheme = createTheme();
 const Layout = () => {
     const [open, setOpen] = React.useState(true);
     const { state, signIn, signOut } = useAuthContext();
+
+    if (!state.isAuthenticated) {
+        return <Login />;
+    }
 
     if (state.isLoading) {
         return (

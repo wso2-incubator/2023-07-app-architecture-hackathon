@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<localEntry key="SpreadSheetConfig" xmlns="http://ws.apache.org/ns/synapse">
+    <googlespreadsheet.init>
+        <accessToken>ya29.a0AbVbY6Mq0sW8IUL0jP9sPJCEs4Luj0qTTm8kp_I84cPQctesLrdmv5eUEcr8X4TkEgVVl7BeYSr4wx9gc7jJyi-PfYNE5cloyj57gHk07ittkroST_XbGSLQMDL5SVDAcde_MzthvUyxGMXHggZb5cXgzX2qaCgYKAdASARISFQFWKvPlGRe3zsqJHyeBwJDlXLDWrg0163</accessToken>
+        <apiUrl>https://sheets.googleapis.com/v4/spreadsheets</apiUrl>
+        <clientId>1014694999461-kgdpji138g1f6s2hnjpf2eut0244ge5a.apps.googleusercontent.com</clientId>
+        <clientSecret>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</clientSecret>
+        <refreshToken>1//04XLKwOKj0FkXCgYIARAAGAQSNwF-L9IrT62U67u78R91yxLFX85MbzN7tM53eh4mz1JobTVzGyJWK8F6_BiJXprNqhchUTOuQIc</refreshToken>
+    </googlespreadsheet.init>
+</localEntry>

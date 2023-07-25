@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="pushData" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <googlespreadsheet.addRowsColumnsData configKey="SpreadSheetConfig">
+        <spreadsheetId>1AiZFDLsVCQz735Atu5nnFGTISaBPKweP-2sCRvP4Srk</spreadsheetId>
+        <range>Employees!A1</range>
+        <valueInputOption>RAW</valueInputOption>
+        <majorDimension>ROWS</majorDimension>
+        <values>{$ctx:values}</values>
+    </googlespreadsheet.addRowsColumnsData>
+</sequence>

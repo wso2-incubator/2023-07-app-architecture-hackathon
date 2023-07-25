@@ -7,7 +7,7 @@ import ballerina/time;
 
 listener http:Listener httpListener = new (9090);
 
-// Type drived query
+// Type driven query
 type ScheduledVisitEntity record {|
     int id;
     record {|

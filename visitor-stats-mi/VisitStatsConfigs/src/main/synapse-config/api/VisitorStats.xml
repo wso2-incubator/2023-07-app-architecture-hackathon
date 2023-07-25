@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/visitorstats" name="VisitorStats" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET">
+        <inSequence>
+            <sequence key="PollVisitsSequence"/>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence>
+            <payloadFactory media-type="json">
+                <format>{
+"Message": "Error occurred while processing visitor stats"
+}</format>
+                <args/>
+            </payloadFactory>
+            <respond/>
+        </faultSequence>
+    </resource>
+</api>

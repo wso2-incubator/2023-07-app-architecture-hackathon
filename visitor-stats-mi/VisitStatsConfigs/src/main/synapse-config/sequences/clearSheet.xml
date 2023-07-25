@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="clearSheet" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <googlespreadsheet.getSheetMetaData configKey="SpreadSheetConfig">
+        <spreadsheetId>1AiZFDLsVCQz735Atu5nnFGTISaBPKweP-2sCRvP4Srk</spreadsheetId>
+    </googlespreadsheet.getSheetMetaData>
+    <property expression="json-eval($.sheets[0].properties.gridProperties.rowCount)" name="Rows" scope="default" type="STRING"/>
+    <property expression="fn:concat('[{&quot;deleteDimension&quot;:{&quot;range&quot;:{&quot;sheetId&quot;:0,&quot;dimension&quot;:&quot;ROWS&quot;,&quot;startIndex&quot;:1,&quot;endIndex&quot;:',get-property('Rows'),'}}}]')" name="requests" scope="default" type="STRING"/>
+    <googlespreadsheet.deleteDimensionBatchRequest configKey="SpreadSheetConfig">
+        <spreadsheetId>1AiZFDLsVCQz735Atu5nnFGTISaBPKweP-2sCRvP4Srk</spreadsheetId>
+        <requests>{$ctx:requests}</requests>
+    </googlespreadsheet.deleteDimensionBatchRequest>
+</sequence>

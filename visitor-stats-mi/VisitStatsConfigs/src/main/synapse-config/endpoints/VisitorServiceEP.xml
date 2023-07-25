@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoint name="VisitorServiceEP" xmlns="http://ws.apache.org/ns/synapse">
+    <http method="get" uri-template="https://1698d406-65dc-49be-b615-ab2451a002b1-prod.e1-us-east-azure.choreoapis.dev/dqqa/visitStatPublicMock/0.1.0/actualVisits">
+        <suspendOnFailure>
+            <initialDuration>-1</initialDuration>
+            <progressionFactor>1.0</progressionFactor>
+        </suspendOnFailure>
+        <markForSuspension>
+            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+        </markForSuspension>
+        <authentication>
+            <oauth>
+                <clientCredentials>
+                    <clientId>cm2oK5VPfCHSmuNVbdhA5ZdNGcIa</clientId>
+                    <clientSecret>k9Xth7tytZ_GZ7ZYdwAFbSfjYE5gaEYx93NQ4ooNGDQa</clientSecret>
+                    <tokenUrl>https://api.asgardeo.io/t/architecturemindmeld/oauth2/token</tokenUrl>
+                    <authMode>Header</authMode>
+                </clientCredentials>
+            </oauth>
+        </authentication>
+    </http>
+</endpoint>

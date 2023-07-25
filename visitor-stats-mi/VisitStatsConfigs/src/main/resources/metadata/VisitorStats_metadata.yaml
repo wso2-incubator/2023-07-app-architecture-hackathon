@@ -1,0 +1,11 @@
+---
+key: "VisitorStats-1.0.0"
+name : "VisitorStats"
+displayName : "VisitorStats"
+description: "Sample API"
+version: "1.0.0"
+serviceUrl: "https://{MI_HOST}:{MI_PORT}/visitorStats"
+definitionType: "OAS3"
+securityType: "BASIC"
+mutualSSLEnabled: false
+apiId : "null"

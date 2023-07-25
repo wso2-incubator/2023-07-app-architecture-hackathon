@@ -3,6 +3,7 @@ import ballerina/http;
 import ballerina/random;
 import ballerina/log;
 import visit_service.db;
+import ballerina/persist;
 import ballerina/time;
 
 listener http:Listener httpListener = new (9090);
@@ -107,8 +108,13 @@ service /visit on httpListener {
             second: civilNow.second
         };
 
+        int|error scheduledVisitId = random:createIntInRange(0, 10000000);
+        if scheduledVisitId is error {
+            return <InternalServerErrorString>{body: "Failed to generate visit id."};
+        }
+
         db:ScheduledVisitInsert scheduledVisitInsert = {
-            id: 0,
+            id: scheduledVisitId,
             createdTime,
             requestedBy: "admin",
             scheduledvisitVisitId: visitId,
@@ -157,6 +163,34 @@ service /visit on httpListener {
     }
 
     resource function put scheduledVisits/[int visitId](ScheduledVisit payload) returns InternalServerErrorString|ScheduledVisit|http:Forbidden {
+        db:VisitDataUpdate visitDataUpdate = {
+            houseNo: payload.houseNo,
+            visitorName: payload.visitorName,
+            visitorNIC: payload.visitorNIC,
+            visitorPhoneNo: payload.visitorPhoneNo,
+            vehicleNumber: payload.vehicleNumber,
+            visitDate: payload.visitDate,
+            isApproved: payload.isApproved,
+            comment: payload.comment
+        };
+        db:VisitData|persist:Error updatedVisit = self.db->/visitdata/[visitId].put(visitDataUpdate);
+        if updatedVisit is persist:Error {
+            string msg = string `Failed to update the scheduled vist: ${visitId}`;
+            log:printError(msg, 'error = updatedVisit);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+        return {
+            visitId: updatedVisit.visitId,
+            houseNo: updatedVisit.houseNo,
+            visitorName: updatedVisit.visitorName,
+            visitorNIC: updatedVisit.visitorNIC,
+            visitorPhoneNo: updatedVisit.visitorPhoneNo,
+            vehicleNumber: updatedVisit.vehicleNumber,
+            visitDate: updatedVisit.visitDate,
+            isApproved: updatedVisit.isApproved,
+            comment: updatedVisit.comment
+        };
     }
 
     resource function get scheduledVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ScheduledVisit[] {
@@ -210,11 +244,10 @@ service /visit on httpListener {
     }
 
     resource function put actualVisits(@http:Payload ActualVisit payload) returns InternalServerErrorString|ActualVisit {
-            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
     }
 
     resource function post actualVisits(@http:Payload NewActualVisit payload) returns InternalServerErrorString|ActualVisit {
-            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+
     }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {
@@ -226,3 +259,4 @@ service /visit on httpListener {
 
     }
 }
+

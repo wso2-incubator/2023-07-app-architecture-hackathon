@@ -197,18 +197,18 @@ service /visit on httpListener {
         stream<ScheduledVisitEntity, error?> scheduledVisitStream = self.db->/scheduledvisits();
         ScheduledVisit[]|error visits =
             from var {visitData} in scheduledVisitStream
-                where visitData.houseNo == value
-                select {
-                    visitId: visitData.visitId,
-                    houseNo: visitData.houseNo,
-                    visitorName: visitData.visitorName,
-                    visitorNIC: visitData.visitorNIC,
-                    visitorPhoneNo: visitData.visitorPhoneNo,
-                    vehicleNumber: visitData.vehicleNumber,
-                    visitDate: visitData.visitDate,
-                    isApproved: visitData.isApproved,
-                    comment: visitData.comment
-                };
+        where visitData.houseNo == value
+        select {
+            visitId: visitData.visitId,
+            houseNo: visitData.houseNo,
+            visitorName: visitData.visitorName,
+            visitorNIC: visitData.visitorNIC,
+            visitorPhoneNo: visitData.visitorPhoneNo,
+            vehicleNumber: visitData.vehicleNumber,
+            visitDate: visitData.visitDate,
+            isApproved: visitData.isApproved,
+            comment: visitData.comment
+        };
 
         if visits is error {
             return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
@@ -237,13 +237,69 @@ service /visit on httpListener {
         };
 
         if visits is error {
-            return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+            string msg = "Failed to retrieve scheduled visits.";
+            log:printError(msg, 'error = visits);
+            return <InternalServerErrorString>{body: msg};
         } else {
             return visits;
         }
     }
 
     resource function put actualVisits(ActualVisit payload) returns InternalServerErrorString|ActualVisit {
+        // TODO: Two inserts in a transaction
+
+        int visitId = payload.visitId;
+        db:VisitDataUpdate visitDataUpdate = {
+            houseNo: payload.houseNo,
+            visitorName: payload.visitorName,
+            visitorNIC: payload.visitorNIC,
+            visitorPhoneNo: payload.visitorPhoneNo,
+            vehicleNumber: payload.vehicleNumber,
+            visitDate: payload.visitDate,
+            isApproved: payload.isApproved,
+            comment: payload.comment
+        };
+        db:VisitData|persist:Error updatedVisit = self.db->/visitdata/[visitId].put(visitDataUpdate);
+        if updatedVisit is persist:Error {
+            string msg = string `Failed to update the scheduled vist: ${visitId}`;
+            log:printError(msg, 'error = updatedVisit);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+        db:ActualVisit[]|error actualVisits = from var actualVisit in self.db->/actualvisits(targetType = db:ActualVisit)
+            where actualVisit.actualvisitVisitId == visitId
+            select actualVisit;
+        if actualVisits is error {
+            string msg = string `Failed to update the scheduled vist: ${visitId}`;
+            log:printError(msg, 'error = actualVisits);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+        db:ActualVisitUpdate actualVisitUpdate = {
+            inTime: payload.inTime,
+            outTime: payload.outTime
+        };
+
+        db:ActualVisit|error updatedActualVisit = self.db->/actualvisits/[actualVisits[0].id].put(actualVisitUpdate);
+        if updatedActualVisit is error {
+            string msg = string `Failed to update the scheduled vist: ${visitId}`;
+            log:printError(msg, 'error = updatedActualVisit);
+            return <InternalServerErrorString>{body: msg};
+        }
+
+        return {
+            visitId,
+            inTime: updatedActualVisit.inTime,
+            outTime: updatedActualVisit.outTime,
+            houseNo: updatedVisit.houseNo,
+            visitorName: updatedVisit.visitorName,
+            visitorNIC: updatedVisit.visitorNIC,
+            visitorPhoneNo: updatedVisit.visitorPhoneNo,
+            vehicleNumber: updatedVisit.vehicleNumber,
+            visitDate: updatedVisit.visitDate,
+            isApproved: updatedVisit.isApproved,
+            comment: updatedVisit.comment
+        };
     }
 
     resource function post actualVisits(NewActualVisit payload) returns InternalServerErrorString|ActualVisit {

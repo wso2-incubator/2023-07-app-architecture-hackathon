@@ -390,7 +390,28 @@ service /visit on httpListener {
    }
 
     resource function get actualVisits/[int visitId]() returns InternalServerErrorString|ActualVisit|http:Forbidden {
+
+        ActualVisitEntity|error actualVisitEntry = self.db->/actualvisits/[visitId]();
+
+        if actualVisitEntry is error {
             return <InternalServerErrorString>{body: "Failed to retrieve scheduled visits."};
+        }
+
+        ActualVisit actualVisit = {
+            visitId: actualVisitEntry.visitData.visitId,
+            houseNo: actualVisitEntry.visitData.houseNo,
+            visitorName: actualVisitEntry.visitData.visitorName,
+            visitorNIC: actualVisitEntry.visitData.visitorNIC,
+            visitorPhoneNo: actualVisitEntry.visitData.visitorPhoneNo,
+            vehicleNumber: actualVisitEntry.visitData.vehicleNumber,
+            visitDate: actualVisitEntry.visitData.visitDate,
+            isApproved: actualVisitEntry.visitData.isApproved,
+            comment: actualVisitEntry.visitData.comment,
+            inTime: actualVisitEntry.inTime,
+            outTime: actualVisitEntry.outTime
+        };
+
+        return actualVisit;
     }
 
     resource function get actualVisits/search(SearchField searchField, string value) returns InternalServerErrorString|ActualVisit[] {

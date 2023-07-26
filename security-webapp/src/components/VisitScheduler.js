@@ -76,7 +76,7 @@ const VisitScheduler = ({ onScheduleVisit }) => {
 
   const [searchResults, setSearchResults] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedSearchType, setSelectedSearchType] = useState("HOUSE_NO"); // Add this state
+  const [selectedSearchType, setSelectedSearchType] = useState("NAME"); // Add this state
   const [searchTerm, setSearchTerm] = useState(""); // Add this state
 
   const handleSearch = async (searchType, searchTerm) => {
@@ -99,7 +99,7 @@ const VisitScheduler = ({ onScheduleVisit }) => {
       withCredentials: false
     };
 
-    var houseHolds;
+    var houseHolds = [];
     await httpRequest(requestConfig)
       .then((response) => {
         console.log(response);
@@ -109,7 +109,6 @@ const VisitScheduler = ({ onScheduleVisit }) => {
       .catch((error) => {
         console.error(error);
       });
-    return houseHolds;
 };
 
   return (
@@ -125,6 +124,7 @@ const VisitScheduler = ({ onScheduleVisit }) => {
       >
         <Modal.Header>Enter a New Visit</Modal.Header>
         <Modal.Content>
+        <Form>
           <Form.Field>
             <label>Search by</label>
             <select
@@ -149,6 +149,7 @@ const VisitScheduler = ({ onScheduleVisit }) => {
           <Button secondary onClick={() => handleSearch(selectedSearchType, searchTerm)}>
             Search
           </Button>
+          </Form>
           {searchResults?.length > 0 && (
             <div>
               <h3>Select Resident from below matches</h3>
@@ -169,6 +170,8 @@ const VisitScheduler = ({ onScheduleVisit }) => {
               </ul>
             </div>
           )}
+          <br />
+          <br />
           <Form onSubmit={handleSubmit}>
             <Form.Field>
               <label>House ID</label>

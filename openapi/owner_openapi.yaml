@@ -28,6 +28,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Owner'
+          "401":
+            description: Unauthorized
+            content:
+              text/plain:
+                schema:
+                  type: string
   /owners/search:
     get:
       operationId: getOwnersSearch
@@ -57,6 +63,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Owner'
+          "401":
+            description: Unauthorized
+            content:
+              text/plain:
+                schema:
+                  type: string
+          "400":
+            description: Bad request
+            content:
+              text/plain:
+                schema:
+                  type: string
 components:
   schemas:
     Owner:
